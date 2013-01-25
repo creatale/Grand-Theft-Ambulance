@@ -7,35 +7,47 @@ scene = undefined
 renderer = undefined
 mesh = undefined
 mat = undefined
-worldWidth = 20
+worldWidth = 200
 worldDepth = 50
 worldHalfWidth = worldWidth / 2
 worldHalfDepth = worldDepth / 2
+Controls = require 'game/controls'
+{tiles, palette} = require './palette'
 
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = getY(worldHalfWidth, worldHalfDepth) * 100 + 100
-	controls = new THREE.FirstPersonControls(camera)
+	camera.position.y = 1500 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
+	camera.lookAt new THREE.Vector3 0,0,0
+	scene = new THREE.Scene()
+	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
+	
+	
+	player = new THREE.Mesh new THREE.CubeGeometry 100, 100, 100
+	console.log player
+	player.position.x = 0
+	player.position.y = 1000
+	player.position.z = 0
+	scene.add player
+
+	controls = new Controls camera, player
 	controls.movementSpeed = 1000
 	controls.lookSpeed = 0.125
 	controls.lookVertical = true
 	controls.constrainVertical = true
 	controls.verticalMin = 1.1
 	controls.verticalMax = 2.2
-	scene = new THREE.Scene()
-	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
+	controls.activeLook = false
 
 	# sides
 	light = new THREE.Color(0xeeeeee)
 	shadow = new THREE.Color(0x505050)
-
+	
 	# sides
 	matrix = new THREE.Matrix4()
-	pxGeometry = new THREE.PlaneGeometry(100, 100)
-
-	{tiles, palette} = require './palette'
-
+	pxGeometry = new THREE.SphereGeometry(150, 8, 4)
+	
+	#
 	geometry = new THREE.Geometry()
 	dummy = new THREE.Mesh()
 	z = 0
