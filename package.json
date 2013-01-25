@@ -1,0 +1,25 @@
+{
+    "name": "GrandTheftAmbulance",
+    "version": "0.0.1",
+    "description": "Grand Theft Ambulance",
+	"author": "Christoph Schulz",
+    "dependencies": {
+		"javascript-brunch": ">= 1.0 < 1.5",
+		"coffee-script-brunch": ">= 1.0 < 1.5",
+		"css-brunch": ">= 1.0 < 1.5",
+		"stylus-brunch": ">= 1.0 < 1.5",
+		"jade-brunch": ">= 1.0 < 1.5",
+		"static-jade-brunch": ">= 1.0 < 1.5",
+		"uglify-js-brunch": ">= 1.0 < 1.5",
+		"clean-css-brunch": ">= 1.0 < 1.5"
+    },
+	"devDependencies": {
+		"mocha": "*",
+		"expect.js": "0.1.2"
+	},
+    "engines": {
+        "node": ">=0.8.0",
+        "npm": ">=1.1.0"
+    },
+	"private": true
+}
