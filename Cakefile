@@ -20,5 +20,5 @@ task 'run', 'Start the server', ->
 	brunch = spawn brunch, ['build'], {cwd: '.', stdio: 'inherit'}
 
 task 'watch', 'Watch for file changes and (re-)start the server', ->
-	brunch = spawn brunch, ['w'], {cwd: '.', stdio: 'inherit'}
+	brunch = spawn brunch, ['w', '-s'], {cwd: '.', stdio: 'inherit'}
 
