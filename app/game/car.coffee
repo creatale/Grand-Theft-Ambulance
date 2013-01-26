@@ -75,6 +75,8 @@ module.exports = class Car
 		@loaded = false
 
 		@meshes = []
+		
+		@grabbing = false
 
 		# API
 
@@ -89,6 +91,7 @@ module.exports = class Car
 
 	loadPartsJSON: (bodyURL) =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 332 * 1.8
+		@bodyGeometry.dynamic = true
 		matrix = new THREE.Matrix4()
 		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
 		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI
@@ -108,16 +111,16 @@ module.exports = class Car
 
 	updateSprite: (index) =>
 		spriteKeyX = index % 5
-		spriteKeyY = (3 - index / 5) | 0
-		console.log "Sprite", spriteKeyX, spriteKeyY
-		@bodyGeometry.faceVertexUvs[0][0][1].y = 1/4 * spriteKeyX
-		@bodyGeometry.faceVertexUvs[0][0][2].y = 1/4 * spriteKeyX
-		@bodyGeometry.faceVertexUvs[0][0][0].y = 1/4 * (spriteKeyX + 1)
-		@bodyGeometry.faceVertexUvs[0][0][3].y = 1/4 * (spriteKeyX + 1)
-		@bodyGeometry.faceVertexUvs[0][0][0].x = 1/5 * spriteKeyY
-		@bodyGeometry.faceVertexUvs[0][0][1].x = 1/5 * spriteKeyY
-		@bodyGeometry.faceVertexUvs[0][0][2].x = 1/5 * (spriteKeyY + 1)
-		@bodyGeometry.faceVertexUvs[0][0][3].x = 1/5 * (spriteKeyY + 1)
+		spriteKeyY = 3 - ((index / 5) | 0)
+		@bodyGeometry.faceVertexUvs[0][0][1].y = 1/4 * spriteKeyY
+		@bodyGeometry.faceVertexUvs[0][0][2].y = 1/4 * spriteKeyY
+		@bodyGeometry.faceVertexUvs[0][0][0].y = 1/4 * (spriteKeyY + 1)
+		@bodyGeometry.faceVertexUvs[0][0][3].y = 1/4 * (spriteKeyY + 1)
+		@bodyGeometry.faceVertexUvs[0][0][0].x = 1/5 * spriteKeyX
+		@bodyGeometry.faceVertexUvs[0][0][1].x = 1/5 * spriteKeyX
+		@bodyGeometry.faceVertexUvs[0][0][2].x = 1/5 * (spriteKeyX + 1)
+		@bodyGeometry.faceVertexUvs[0][0][3].x = 1/5 * (spriteKeyX + 1)
+		@bodyGeometry.uvsNeedUpdate = true
 		
 
 	# loadPartsBinary: (bodyURL, wheelURL) =>
@@ -147,9 +150,17 @@ module.exports = class Car
 			@wheelOrientation = THREE.Math.clamp(@wheelOrientation - delta * @WHEEL_ANGULAR_ACCELERATION, -@MAX_WHEEL_ROTATION, @MAX_WHEEL_ROTATION)
 
 		# grab
-		if controls.grab
-			@updateSprite(3)
-			
+		if controls.grab and not @grabbing
+			@grabbing = true
+			keyFrame = 0
+			animFunc = () =>
+				keyFrame++
+				@updateSprite(keyFrame)
+				if keyFrame < 18
+					setTimeout(animFunc, 80)
+				else
+					@grabbing = false
+			animFunc()
 		# speed decay
 
 		unless controls.moveForward or controls.moveBackward
