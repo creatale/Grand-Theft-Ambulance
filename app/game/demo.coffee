@@ -37,7 +37,7 @@ init = ->
 	camera.rotation.z = Math.PI
 	controls = new Controls()
 
-	policeCar = new PoliceCar(playerCar)
+	policeCar = new PoliceCar(playerCar, map)
 	policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 	scene.add policeCar.root
 
