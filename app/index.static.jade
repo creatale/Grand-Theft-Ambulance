@@ -1,15 +1,16 @@
 extends _layout
 block content
-	#container(style="position:absolute;bottom:0;left:0;width:100%;height:100%")
-	#cargo-frame(style="position:absolute;top:12px;left:12px")
-		img(src="ui/heart-1.png")
-		img(src="ui/heart-0.png")
-		img(src="ui/heart-0.png")
-		img(src="ui/heart-0.png")		
-	#crash-frame(style="position:absolute;top:12px;right:12px")
-		span#cash(style="color:white;font-weight:bold;font-size:18px;margin-right:6px") 0,00
-		img(src="ui/bitcoin.png")
-	#police-frame(style="position:absolute;bottom:0;left:0;width:100%;text-align:center")
+	#container
+	#cargo-frame
+		img#cargo-0(src="ui/heart-1.png")
+		img#cargo-1(src="ui/heart-0.png")
+		img#cargo-2(src="ui/heart-0.png")
+		img#cargo-3(src="ui/heart-0.png")		
+	#crash-frame
+		span#cash 1,000.00
+		&nbsp;&nbsp;
+		img(style="vertical-align:middle", src="ui/bitcoin.png")
+	#police-frame
 		img(src="ui/police.png")
 		img(src="ui/police.png")
 		img(src="ui/police.png")

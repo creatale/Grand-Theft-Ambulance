@@ -186,7 +186,7 @@ generateHeight = (width, height) ->
 getY = (x, z) ->
 	(data[x + z * worldWidth] * 0.2) | 0
 
-# crash stuff
+# crash ui
 formatDollar = (num) ->
 	p = num.toFixed(2).split(".")
 	chars = p[0].split("").reverse()
@@ -200,13 +200,36 @@ formatDollar = (num) ->
 			newstr = chars[x] + newstr
 	newstr + "." + p[1]
 
-#TODO: replace with proper code.
 cash = 0
+#TODO: replace with proper code.
 setInterval(->
 	cash += 1000
 	$('#cash').text(formatDollar(cash))
 , 500)
-	
+
+# cargo ui
+cargoCount = 0
+#TODO: replace with proper code.
+setInterval(->
+	cargoCount = (cargoCount + 1) % 5
+	for index in [0..3]
+		if cargoCount > index
+			$("#cargo-" + index).attr("src", "ui/heart-1.png")
+		else
+			$("#cargo-" + index).attr("src", "ui/heart-0.png")
+, 500)
+
+# police ui
+policeCount = 0
+#TODO: replace with proper code.
+setInterval(->
+	policeCount = (policeCount + 1) % 4
+	policeFrame = $("#police-frame")
+	policeFrame.empty()
+	for index in [0..policeCount]
+		policeFrame.append('<img src="ui/police.png">')
+, 500)
+
 #
 animate = ->
 	requestAnimationFrame animate
