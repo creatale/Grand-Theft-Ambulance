@@ -142,10 +142,15 @@ init = ->
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
+	matGrass = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/gras1.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
 
 	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([
 		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT,
-		matWall1, matWall2, matButchery, matButcheryEntrance]))
+		matWall1, matWall2, matButchery, matButcheryEntrance, matGrass]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight

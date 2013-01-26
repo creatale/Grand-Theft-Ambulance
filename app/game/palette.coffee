@@ -63,6 +63,7 @@ exports.tiles =
 	17: makeBox(7)
 	18: makeBox(8)
 	19: makeFloor(9, 1)
+	20: makeFloor(10)
 	42: new THREE.SphereGeometry(50, 8, 4)
 
 exports.palette =
@@ -87,6 +88,7 @@ exports.palette =
 	0xe00e: [7, 0, 0]	# T
 	0xe00f: [13, 0, 0]	# 4-way
 	0x00ff: [15, 0, 0]	#	walkway
+	0x0080: [20]				# Park
 	0x8080: [16, 0, 0]	# one story house
 	0x7f7f: [17]				# alternativve
 	0xffff: [16, 16, 0]	# two story house
