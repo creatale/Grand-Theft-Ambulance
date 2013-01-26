@@ -2,8 +2,23 @@ Car = require './car'
 
 module.exports = class PoliceCar extends Car
 	constructor: (@playerCar, @map) ->
-		@lastForward = 0
 		super
+		@lastForward = 0
+		@texture = "textures/police.png"
+
+	loadPartsJSON: (bodyURL) =>
+		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
+		matrix = new THREE.Matrix4()
+		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
+		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI
+		#@updateSprite(0)
+		map = THREE.ImageUtils.loadTexture(@texture)
+		map.wrapS = map.wrapT = THREE.RepeatWrapping
+		@bodyMaterials = [
+			new THREE.MeshLambertMaterial( { ambient: 0xbbbbbb, map: map, transparent: true, side: THREE.DoubleSide } ),
+		]
+		@wheelGeometry = new THREE.SphereGeometry 5, 5, 4
+		@createCar()
 
 	lookAhead: (direction) =>
 		posX = Math.round (@root.position.x + Math.sin(direction) * 500) / 500 + @map.height / 2

@@ -78,6 +78,8 @@ module.exports = class Car
 		
 		@grabbing = false
 
+		@texture = "textures/ambulance.png"
+
 		# API
 
 	enableShadows: (enable) =>
@@ -96,7 +98,7 @@ module.exports = class Car
 		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
 		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI
 		@updateSprite(0)
-		map = THREE.ImageUtils.loadTexture("textures/ambulance.png")
+		map = THREE.ImageUtils.loadTexture(@texture)
 		map.wrapS = map.wrapT = THREE.RepeatWrapping
 		#map.repeat.set( 1, 2 );
 		@bodyMaterials = [

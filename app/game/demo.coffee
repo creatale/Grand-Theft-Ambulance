@@ -172,7 +172,7 @@ init = ->
 	graph = StreetGraph.fromMapData(map)
 	console.log graph
 	
-	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 10, 500, 1000), scene, {x: map.width * 250, y: map.height * 250})
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(0, 20, 500, 50), scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
 	$(window).resize ->

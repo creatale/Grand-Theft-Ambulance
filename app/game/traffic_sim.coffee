@@ -192,10 +192,26 @@ module.exports.SimulationParameters = class SimulationParameters
 class SimulationCar extends Car
 	constructor: (@type, @from, @to, @nextNode, @tileSize) ->
 		super
-		@modelScale = 2.5
+		#@modelScale = 2.5
 		@position =
 			x: @from.x
 			y: @from.y
+
+		@texture = "textures/limousine_#{ Math.round(Math.random() * 6 + 0.5) }.png"
+
+	loadPartsJSON: (bodyURL) =>
+		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
+		matrix = new THREE.Matrix4()
+		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
+		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI
+		#@updateSprite(0)
+		map = THREE.ImageUtils.loadTexture(@texture)
+		map.wrapS = map.wrapT = THREE.RepeatWrapping
+		@bodyMaterials = [
+			new THREE.MeshLambertMaterial( { ambient: 0xbbbbbb, map: map, transparent: true, side: THREE.DoubleSide } ),
+		]
+		@wheelGeometry = new THREE.SphereGeometry 5, 5, 4
+		@createCar()
 		# @modelScale = 1
 		# @root = new THREE.Object3D()
 		# @bodyMesh = null
@@ -250,10 +266,13 @@ class SimulationCar extends Car
 		if @to.occupiedBy?
 			speed = speed / 2
 		if @nextNode.occupiedBy?
-			speed = speed / 2
+			speed = speed / 4
 		direction =
 			x: (@to.x - @position.x)
 			y: (@to.y - @position.y)
+
+		@root.rotation.y = Math.atan2(direction.y, direction.x)
+
 		# console.log direction
 		length = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y, 2))
 		@position =

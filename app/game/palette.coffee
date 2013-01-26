@@ -58,7 +58,7 @@ exports.tiles =
 	11: makeFloor(1, 2)
 	12: makeFloor(1, 3)
 	13: makeFloor(2)
-	15: makeFloor(4)
+	15: makeFloor(4, 1)
 	16: makeBox(6)
 	17: makeBox(7)
 	18: makeBox(8)
