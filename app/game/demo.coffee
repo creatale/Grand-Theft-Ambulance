@@ -3,6 +3,7 @@ container = undefined
 stats = undefined
 camera = undefined
 controls = undefined
+playerCar = undefined
 scene = undefined
 renderer = undefined
 mesh = undefined
@@ -12,32 +13,25 @@ worldDepth = 32
 worldHalfWidth = worldWidth / 2
 worldHalfDepth = worldDepth / 2
 Controls = require 'game/controls'
+Car = require 'game/car'
 {tiles, palette} = require './palette'
 
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
-	camera.lookAt new THREE.Vector3 0,0,0
+	camera.position.y = 400 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
-	
-	player = new THREE.Mesh new THREE.CubeGeometry 400, 200, 200
-	console.log player
-	player.position.x = 0
-	player.position.y = 0
-	player.position.z = 0
-	scene.add player
+	playerCar = new Car()
 
-	controls = new Controls camera, player
-	controls.movementSpeed = 1000
-	controls.lookSpeed = 0.125
-	controls.lookVertical = true
-	controls.constrainVertical = true
-	controls.verticalMin = 1.1
-	controls.verticalMax = 2.2
-	controls.activeLook = false
+	playerCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+
+
+	scene.add playerCar.root
+	scene.add camera
+	camera.rotation.z = Math.PI
+	controls = new Controls()
 
 	# sides
 	light = new THREE.Color(0xeeeeee)
@@ -46,8 +40,6 @@ init = ->
 	# sides
 	matrix = new THREE.Matrix4()
 	pxGeometry = new THREE.PlaneGeometry(100, 100)
-
-	{tiles, palette} = require './palette'
 
 	geometry = new THREE.Geometry()
 	dummy = new THREE.Mesh()
@@ -188,7 +180,11 @@ animate = ->
 	render()
 	stats.update()
 render = ->
-	controls.update clock.getDelta()
+	playerCar.update clock.getDelta(), controls
+	camera.position.x = playerCar.root.position.x
+	camera.position.z = playerCar.root.position.z
+	camera.lookAt playerCar.root.position
+
 	renderer.render scene, camera
 unless Detector.webgl
 	Detector.addGetWebGLMessage()
