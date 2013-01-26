@@ -4,6 +4,8 @@ stats = undefined
 camera = undefined
 controls = undefined
 playerCar = undefined
+traffic = undefined
+policeCar = undefined
 scene = undefined
 renderer = undefined
 mesh = undefined
@@ -14,12 +16,15 @@ worldHalfWidth = worldWidth / 2
 worldHalfDepth = worldDepth / 2
 Controls = require 'game/controls'
 Car = require 'game/car'
+PoliceCar = require 'game/policecar'
 {tiles, palette} = require './palette'
+{StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
 
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
 	camera.position.y = 1500
+	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
@@ -32,6 +37,10 @@ init = ->
 	scene.add camera
 	camera.rotation.z = Math.PI
 	controls = new Controls()
+
+	policeCar = new PoliceCar(playerCar, map)
+	policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+	scene.add policeCar.root
 
 	# sides
 	light = new THREE.Color(0xeeeeee)
@@ -123,8 +132,20 @@ init = ->
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
+	matButchery = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/tile_house_meat.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	matButcheryEntrance = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/tile_parking.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+
 	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([
-		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT, matWall1, matWall2]))
+		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT,
+		matWall1, matWall2, matButchery, matButcheryEntrance]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
@@ -142,11 +163,19 @@ init = ->
 	stats.domElement.style.bottom = "0px"
 	stats.domElement.style.right = "0px"
 	container.appendChild stats.domElement
+
+	graph = StreetGraph.fromMapData(map)
+	console.log graph
+	
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 10, 500, 1000), scene, {x: map.width * 250, y: map.height * 250})
+	
+	#
 	$(window).resize ->
 		camera.aspect = window.innerWidth / window.innerHeight
 		camera.updateProjectionMatrix()
 		renderer.setSize $(container).width(), $(container).height()
 		controls.handleResize()
+
 loadTexture = (path, callback) ->
 	image = new Image()
 	image.onload = ->
@@ -154,6 +183,7 @@ loadTexture = (path, callback) ->
 
 	image.src = path
 	image
+
 
 # crash ui
 formatDollar = (num) ->
@@ -205,7 +235,10 @@ animate = ->
 	render()
 	stats.update()
 render = ->
-	playerCar.update clock.getDelta(), controls
+	deltaT = clock.getDelta()
+	playerCar.update deltaT, controls
+	policeCar.update deltaT
+	traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
 	camera.lookAt playerCar.root.position
@@ -216,7 +249,6 @@ unless Detector.webgl
 	document.getElementById("container").innerHTML = ""
 
 loadImage = require 'game/loadimage'
-console.log loadImage
 
 map = undefined
 loadImage 'maps/test2.png', (imageData) ->
