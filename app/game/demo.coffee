@@ -4,6 +4,7 @@ stats = undefined
 camera = undefined
 controls = undefined
 playerCar = undefined
+traffic = undefined
 scene = undefined
 renderer = undefined
 mesh = undefined
@@ -15,6 +16,7 @@ worldHalfDepth = worldDepth / 2
 Controls = require 'game/controls'
 Car = require 'game/car'
 {tiles, palette} = require './palette'
+{StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
 
 init = ->
 	container = document.getElementById("container")
@@ -142,11 +144,19 @@ init = ->
 	stats.domElement.style.bottom = "0px"
 	stats.domElement.style.right = "0px"
 	container.appendChild stats.domElement
+
+	graph = StreetGraph.fromMapData(map)
+	console.log graph
+	
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 10, 500, 10), scene, {x: map.width * 250, y: map.height * 250})
+	
+	#
 	$(window).resize ->
 		camera.aspect = window.innerWidth / window.innerHeight
 		camera.updateProjectionMatrix()
 		renderer.setSize $(container).width(), $(container).height()
 		controls.handleResize()
+
 loadTexture = (path, callback) ->
 	image = new Image()
 	image.onload = ->
@@ -205,7 +215,9 @@ animate = ->
 	render()
 	stats.update()
 render = ->
-	playerCar.update clock.getDelta(), controls
+	deltaT = clock.getDelta()
+	playerCar.update deltaT, controls
+	traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
 	camera.lookAt playerCar.root.position
@@ -219,7 +231,7 @@ loadImage = require 'game/loadimage'
 console.log loadImage
 
 map = undefined
-loadImage 'maps/test2.png', (imageData) ->
+loadImage 'maps/test4.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width
