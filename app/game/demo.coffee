@@ -5,6 +5,7 @@ camera = undefined
 controls = undefined
 playerCar = undefined
 traffic = undefined
+policeCar = undefined
 scene = undefined
 renderer = undefined
 mesh = undefined
@@ -15,13 +16,14 @@ worldHalfWidth = worldWidth / 2
 worldHalfDepth = worldDepth / 2
 Controls = require 'game/controls'
 Car = require 'game/car'
+PoliceCar = require 'game/policecar'
 {tiles, palette} = require './palette'
 {StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
 
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 10000
+	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
@@ -34,6 +36,10 @@ init = ->
 	scene.add camera
 	camera.rotation.z = Math.PI
 	controls = new Controls()
+
+	policeCar = new PoliceCar(playerCar)
+	policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+	scene.add policeCar.root
 
 	# sides
 	light = new THREE.Color(0xeeeeee)
@@ -165,6 +171,7 @@ loadTexture = (path, callback) ->
 	image.src = path
 	image
 
+
 # crash ui
 formatDollar = (num) ->
 	p = num.toFixed(2).split(".")
@@ -217,6 +224,7 @@ animate = ->
 render = ->
 	deltaT = clock.getDelta()
 	playerCar.update deltaT, controls
+	policeCar.update deltaT
 	traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
@@ -228,10 +236,9 @@ unless Detector.webgl
 	document.getElementById("container").innerHTML = ""
 
 loadImage = require 'game/loadimage'
-console.log loadImage
 
 map = undefined
-loadImage 'maps/test5.png', (imageData) ->
+loadImage 'maps/test2.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width
