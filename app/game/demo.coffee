@@ -122,22 +122,21 @@ init = ->
 	directionalLight.position.set(1, 1, 0.5).normalize()
 	scene.add directionalLight
 	renderer = new THREE.WebGLRenderer(clearColor: 0xffffff)
-	renderer.setSize window.innerWidth, window.innerHeight
-	container.innerHTML = ""
+	renderer.setSize $(container).width(), $(container).height()
 	container.appendChild renderer.domElement
+	renderer.domElement.style.position = "absolute"
+	renderer.domElement.style.bottom = "0px"
+	renderer.domElement.style.right = "0px"
 	stats = new Stats()
 	stats.domElement.style.position = "absolute"
 	stats.domElement.style.bottom = "0px"
 	stats.domElement.style.right = "0px"
 	container.appendChild stats.domElement
-
-	#
-	window.addEventListener "resize", onWindowResize, false
-onWindowResize = ->
-	camera.aspect = window.innerWidth / window.innerHeight
-	camera.updateProjectionMatrix()
-	renderer.setSize window.innerWidth, window.innerHeight
-	controls.handleResize()
+	$(window).resize ->
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+		renderer.setSize $(container).width(), $(container).height()
+		controls.handleResize()
 loadTexture = (path, callback) ->
 	image = new Image()
 	image.onload = ->
