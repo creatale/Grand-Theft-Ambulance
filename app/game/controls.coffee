@@ -9,6 +9,7 @@ module.exports = class Controls
 		@moveBackward = false
 		@moveLeft = false
 		@moveRight = false
+		@grab = false
 		@domElement.setAttribute "tabindex", -1  if @domElement isnt document
 
 		@domElement.addEventListener "contextmenu", (event) ->
@@ -40,6 +41,8 @@ module.exports = class Controls
 				@moveForward = true
 			when 40, 83
 				@moveBackward = true
+			when 32
+				@grab = true
 
 	onKeyUp: (event) =>
 		switch event.keyCode
@@ -51,3 +54,6 @@ module.exports = class Controls
 				@moveForward = false
 			when 40, 83
 				@moveBackward = false
+			when 32
+				@grab = false
+			

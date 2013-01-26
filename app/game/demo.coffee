@@ -19,7 +19,7 @@ Car = require 'game/car'
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 1000
+	camera.position.y = 1500
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	

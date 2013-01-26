@@ -88,13 +88,37 @@ module.exports = class Car
 			mesh.visible = enable
 
 	loadPartsJSON: (bodyURL) =>
-		@bodyGeometry = new THREE.CubeGeometry 40, 80, 80
+		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 332 * 1.8
+		matrix = new THREE.Matrix4()
+		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
+		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI
+		@updateSprite(0)
+		map = THREE.ImageUtils.loadTexture("textures/ambulance.png")
+		map.wrapS = map.wrapT = THREE.RepeatWrapping
+		#map.repeat.set( 1, 2 );
+		@bodyMaterials = [
+			new THREE.MeshLambertMaterial( { ambient: 0xbbbbbb, map: map, transparent: true, side: THREE.DoubleSide } ),
+			#new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1, side: THREE.DoubleSide } )
+		]
 		@wheelGeometry = new THREE.SphereGeometry 5, 5, 4
 		@createCar()
 		# loader = new THREE.JSONLoader()
 		# loader.load bodyURL, (geometry, materials) =>
 		# 	@createBody geometry, materials
 
+	updateSprite: (index) =>
+		spriteKeyX = index % 5
+		spriteKeyY = (3 - index / 5) | 0
+		console.log "Sprite", spriteKeyX, spriteKeyY
+		@bodyGeometry.faceVertexUvs[0][0][1].y = 1/4 * spriteKeyX
+		@bodyGeometry.faceVertexUvs[0][0][2].y = 1/4 * spriteKeyX
+		@bodyGeometry.faceVertexUvs[0][0][0].y = 1/4 * (spriteKeyX + 1)
+		@bodyGeometry.faceVertexUvs[0][0][3].y = 1/4 * (spriteKeyX + 1)
+		@bodyGeometry.faceVertexUvs[0][0][0].x = 1/5 * spriteKeyY
+		@bodyGeometry.faceVertexUvs[0][0][1].x = 1/5 * spriteKeyY
+		@bodyGeometry.faceVertexUvs[0][0][2].x = 1/5 * (spriteKeyY + 1)
+		@bodyGeometry.faceVertexUvs[0][0][3].x = 1/5 * (spriteKeyY + 1)
+		
 
 	# loadPartsBinary: (bodyURL, wheelURL) =>
 	# 	loader = new THREE.BinaryLoader()
@@ -122,6 +146,10 @@ module.exports = class Car
 		if controls.moveRight
 			@wheelOrientation = THREE.Math.clamp(@wheelOrientation - delta * @WHEEL_ANGULAR_ACCELERATION, -@MAX_WHEEL_ROTATION, @MAX_WHEEL_ROTATION)
 
+		# grab
+		if controls.grab
+			@updateSprite(3)
+			
 		# speed decay
 
 		unless controls.moveForward or controls.moveBackward
@@ -209,7 +237,7 @@ module.exports = class Car
 			wheelFaceMaterial = new THREE.MeshFaceMaterial(@wheelMaterials)
 			
 			# body
-			@bodyMesh = new THREE.Mesh @bodyGeometry #, bodyFaceMaterial)
+			@bodyMesh = new THREE.Mesh @bodyGeometry, bodyFaceMaterial
 			@bodyMesh.scale.set s, s, s
 			@root.add @bodyMesh
 			
