@@ -19,7 +19,7 @@ Car = require 'game/car'
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
+	camera.position.y = 1000
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
@@ -75,10 +75,6 @@ init = ->
 				dummy.position.x = x * 500  - worldHalfWidth * 500
 				dummy.position.y = h * 500
 				dummy.position.z = z * 500  - worldHalfDepth * 500
-				px = getY(x + 1, z)
-				nx = getY(x - 1, z)
-				pz = getY(x, z + 1)
-				nz = getY(x, z - 1)
 				dummy.geometry = tiles[item]
 				#dummy.geometry = pxGeometry
 				THREE.GeometryUtils.merge geometry, dummy
@@ -158,33 +154,6 @@ loadTexture = (path, callback) ->
 
 	image.src = path
 	image
-generateHeight = (width, height) ->
-	data = []
-	perlin = new ImprovedNoise()
-	size = width * height
-	quality = 2
-	z = Math.random() * 100
-	j = 0
-
-	while j < 4
-		if j is 0
-			i = 0
-
-			while i < size
-				data[i] = 0
-				i++
-		i = 0
-
-		while i < size
-			x = i % width
-			y = (i / width) | 0
-			data[i] += perlin.noise(x / quality, y / quality, z) * quality
-			i++
-		quality *= 4
-		j++
-	data
-getY = (x, z) ->
-	(data[x + z * worldWidth] * 0.2) | 0
 
 # crash ui
 formatDollar = (num) ->
@@ -260,7 +229,4 @@ loadImage 'maps/test2.png', (imageData) ->
 	init()
 	animate()
 
-data = generateHeight(worldWidth, worldDepth)
 clock = new THREE.Clock()
-
-
