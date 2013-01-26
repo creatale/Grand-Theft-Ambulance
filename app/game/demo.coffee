@@ -7,8 +7,8 @@ scene = undefined
 renderer = undefined
 mesh = undefined
 mat = undefined
-worldWidth = 200
-worldDepth = 50
+worldWidth = 32
+worldDepth = 32
 worldHalfWidth = worldWidth / 2
 worldHalfDepth = worldDepth / 2
 Controls = require 'game/controls'
@@ -45,9 +45,10 @@ init = ->
 	
 	# sides
 	matrix = new THREE.Matrix4()
-	pxGeometry = new THREE.SphereGeometry(150, 8, 4)
-	
-	#
+	pxGeometry = new THREE.PlaneGeometry(100, 100)
+
+	{tiles, palette} = require './palette'
+
 	geometry = new THREE.Geometry()
 	dummy = new THREE.Mesh()
 	z = 0
@@ -56,7 +57,7 @@ init = ->
 		x = 0
 
 		while x < worldWidth
-			tile = 42
+			tile = map.data[(z * worldDepth + x) * 4]
 			stack = palette[tile]
 			for item, h in stack
 				continue unless tiles[item]?
@@ -68,30 +69,32 @@ init = ->
 				nx = getY(x - 1, z)
 				pz = getY(x, z + 1)
 				nz = getY(x, z - 1)
-				#dummy.geometry = tiles[item]
-				dummy.geometry = pxGeometry
+				dummy.geometry = tiles[item]
+				#dummy.geometry = pxGeometry
 				THREE.GeometryUtils.merge geometry, dummy
 
 
 			x++
 		z++
-	textureGrass = THREE.ImageUtils.loadTexture("textures/minecraft/grass.png")
-	textureGrass.magFilter = THREE.NearestFilter
-	textureGrass.minFilter = THREE.LinearMipMapLinearFilter
-	textureGrassDirt = THREE.ImageUtils.loadTexture("textures/minecraft/grass_dirt.png")
-	textureGrassDirt.magFilter = THREE.NearestFilter
-	textureGrassDirt.minFilter = THREE.LinearMipMapLinearFilter
+	textureStreetH = THREE.ImageUtils.loadTexture("textures/street_h.png")
+	textureStreetV = THREE.ImageUtils.loadTexture("textures/street_v.png")
+	textureWhite = THREE.ImageUtils.loadTexture("textures/white.png")
 	material1 = new THREE.MeshLambertMaterial(
-		map: textureGrass
+		map: textureStreetH
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
 	material2 = new THREE.MeshLambertMaterial(
-		map: textureGrassDirt
+		map: textureStreetV
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([material1, material2]))
+	material3 = new THREE.MeshLambertMaterial(
+		map: textureWhite
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([material1, material2, material3]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
@@ -161,7 +164,17 @@ unless Detector.webgl
 	Detector.addGetWebGLMessage()
 	document.getElementById("container").innerHTML = ""
 
+loadImage = require 'game/loadimage'
+console.log loadImage
+
+map = undefined
+loadImage 'maps/test.png', (imageData) ->
+	console.log 'loaded', imageData
+	map = imageData
+	init()
+	animate()
+
 data = generateHeight(worldWidth, worldDepth)
 clock = new THREE.Clock()
-init()
-animate()
+
+
