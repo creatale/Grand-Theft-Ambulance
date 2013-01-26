@@ -11,10 +11,12 @@ class Node
 		
 	randomTo: =>
 		if @toEdges.length > 1
-			return @toEdges[Math.floor(Math.random() * toEdges.length)].to
-		else
+			return @toEdges[Math.floor(Math.random() * @toEdges.length)].to
+		else if @toEdges.length > 0
 			# TODO: will die if no toEdge is present
 			return @toEdges[0].to
+		else
+			return new Node 0, 0, 0
 			
 	@createSuperNode: (nodes) =>
 		x = 0
@@ -173,6 +175,7 @@ module.exports.SimulationParameters = class SimulationParameters
 class SimulationCar extends Car
 	constructor: (@type, @from, @to, @nextNode, @tileSize) ->
 		super
+		@modelScale = 2.5
 		@position =
 			x: @from.x
 			y: @from.y
@@ -223,11 +226,14 @@ class SimulationCar extends Car
 	move: (deltaT, globalOffset) =>
 		# break if @nextNode is occupied and ||nextNode.car.velocity|| < ||@velocity||
 		# break completely if crossing is occupied
-		# if @nextNode.occupiedBy?
 		speed = 0
 		switch @type
 			when 0
-				speed = 0.05
+				speed = 0.025
+		if @to.occupiedBy?
+			speed = speed / 2
+		if @nextNode.occupiedBy?
+			speed = speed / 2
 		direction =
 			x: (@to.x - @position.x)
 			y: (@to.y - @position.y)

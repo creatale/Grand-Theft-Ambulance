@@ -21,7 +21,7 @@ Car = require 'game/car'
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 1000
+	camera.position.y = 10000
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
@@ -148,7 +148,7 @@ init = ->
 	graph = StreetGraph.fromMapData(map)
 	console.log graph
 	
-	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 10, 500, 10), scene, {x: map.width * 250, y: map.height * 250})
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 10, 500, 1000), scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
 	$(window).resize ->
@@ -231,7 +231,7 @@ loadImage = require 'game/loadimage'
 console.log loadImage
 
 map = undefined
-loadImage 'maps/test4.png', (imageData) ->
+loadImage 'maps/test5.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width
