@@ -64,7 +64,6 @@ init = ->
 				tile |= isStreet(z, x - 1) << 1
 				tile |= isStreet(z + 1, x) << 2
 				tile |= isStreet(z, x + 1) << 3
-				console.log tile - 0xe000, z, x
 
 			stack = palette[tile] or []
 			for item, h in stack
@@ -194,7 +193,7 @@ loadImage = require 'game/loadimage'
 console.log loadImage
 
 map = undefined
-loadImage 'maps/test3.png', (imageData) ->
+loadImage 'maps/test2.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width

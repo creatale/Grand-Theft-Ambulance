@@ -63,10 +63,10 @@ exports.tiles =
 	42: new THREE.SphereGeometry(50, 8, 4)
 
 exports.palette =
-	0x1000: [1, 0, 0]
-	0x2000: [2, 0, 0]
-	0x3000: [2, 0, 0]
-	0x4000: [1, 0, 0]
+	0x1000: [1]
+	0x2000: [2]
+	0x3000: [2]
+	0x4000: [1]
 	0xe000: [13, 0, 0]
 	0xe001: [13, 0, 0]	# shouldn't exist
 	0xe002: [13, 0, 0]	# shouldn't exist
