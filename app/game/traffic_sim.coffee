@@ -1,4 +1,4 @@
-class Node:
+class Node
 	constructor: (@x, @y) ->
 		@fromEdges = []
 		@toEdges = []
@@ -14,7 +14,7 @@ class Node:
 			# TODO: will die if no toEdge is present
 			return toEdges[0].to
 	
-class Edge:
+class Edge
 	constructor: (@from, @to) ->
 
 class StreetGraph
