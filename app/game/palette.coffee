@@ -22,7 +22,7 @@ makeBox = () ->
 	nxGeometry.applyMatrix( matrix.makeTranslation( - 250, 0, 0 ) );
 
 	pyGeometry = new THREE.PlaneGeometry( 500, 500 );
-	pyGeometry.faces[ 0 ].materialIndex = 2;
+	pyGeometry.faces[ 0 ].materialIndex = 3;
 	pyGeometry.applyMatrix( matrix.makeRotationX( - Math.PI / 2 ) );
 	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 250, 0 ) );
 
@@ -46,13 +46,19 @@ makeBox = () ->
 exports.tiles =
 	1: makeFloor(0)
 	2: makeFloor(1)
-	3: makeBox()
+	3: makeFloor(2)
+	15: makeFloor(4)
+	16: makeBox()
 	42: new THREE.SphereGeometry(50, 8, 4)
 
 exports.palette =
-	0: [1, 0, 0]
-	16: [2, 0, 0]
-	128: [3, 3, 42]
-	255: [3, 0, 0]
-
+	0x1000: [1, 0, 0]
+	0x2000: [2, 0, 0]
+	0x3000: [2, 0, 0]
+	0x4000: [1, 0, 0]
+	0xe000: [3, 0, 0]
+	0x00ff: [15, 0, 0]
+	0x8080: [16, 0, 0]
+	0xffff: [16, 16, 0]
+	0x00: [16, 42]
 

@@ -52,16 +52,17 @@ init = ->
 	geometry = new THREE.Geometry()
 	dummy = new THREE.Mesh()
 	z = 0
+	index = 0
 
 	while z < worldDepth
 		x = 0
 
 		while x < worldWidth
-			tile = map.data[(z * worldDepth + x) * 4]
+			tile = map.data[index] * 256 + map.data[index + 1]
+			index += 4
 			stack = palette[tile]
 			for item, h in stack
 				continue unless tiles[item]?
-				console.log 'merge'
 				dummy.position.x = x * 500  - worldHalfWidth * 500
 				dummy.position.y = h * 500
 				dummy.position.z = z * 500  - worldHalfDepth * 500
@@ -78,6 +79,7 @@ init = ->
 		z++
 	textureStreetH = THREE.ImageUtils.loadTexture("textures/street_h.png")
 	textureStreetV = THREE.ImageUtils.loadTexture("textures/street_v.png")
+	textureStreetCrossing = THREE.ImageUtils.loadTexture("textures/street_x4.png")
 	textureWhite = THREE.ImageUtils.loadTexture("textures/white.png")
 	material1 = new THREE.MeshLambertMaterial(
 		map: textureStreetH
@@ -90,11 +92,21 @@ init = ->
 		vertexColors: THREE.VertexColors
 	)
 	material3 = new THREE.MeshLambertMaterial(
+		map: textureStreetCrossing
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	material4 = new THREE.MeshLambertMaterial(
 		map: textureWhite
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([material1, material2, material3]))
+	material5 = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/walkway.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([material1, material2, material3, material4, material5]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
@@ -168,9 +180,13 @@ loadImage = require 'game/loadimage'
 console.log loadImage
 
 map = undefined
-loadImage 'maps/test.png', (imageData) ->
+loadImage 'maps/test2.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
+	worldWidth = map.width
+	worldDepth = map.height
+	worldHalfWidth = worldWidth / 2
+	worldHalfDepth = worldDepth / 2
 	init()
 	animate()
 
