@@ -54,13 +54,27 @@ init = ->
 	z = 0
 	index = 0
 
+	isStreet = (x, y) ->
+		return false unless x >= 0 and y >= 0 and x < map.width and y < map.height
+		idx = (x * worldDepth + y) * 4
+		return map.data[idx + 1] is 0 and map.data[idx] > 0
+
+
 	while z < worldDepth
 		x = 0
 
 		while x < worldWidth
 			tile = map.data[index] * 256 + map.data[index + 1]
 			index += 4
-			stack = palette[tile]
+
+			if tile is 0xe000
+				tile |= isStreet(z - 1, x)
+				tile |= isStreet(z, x - 1) << 1
+				tile |= isStreet(z + 1, x) << 2
+				tile |= isStreet(z, x + 1) << 3
+				console.log tile - 0xe000, z, x
+
+			stack = palette[tile] or []
 			for item, h in stack
 				continue unless tiles[item]?
 				dummy.position.x = x * 500  - worldHalfWidth * 500
@@ -77,36 +91,39 @@ init = ->
 
 			x++
 		z++
-	textureStreetH = THREE.ImageUtils.loadTexture("textures/street_h.png")
-	textureStreetV = THREE.ImageUtils.loadTexture("textures/street_v.png")
-	textureStreetCrossing = THREE.ImageUtils.loadTexture("textures/street_x4.png")
-	textureWhite = THREE.ImageUtils.loadTexture("textures/white.png")
-	material1 = new THREE.MeshLambertMaterial(
-		map: textureStreetH
+
+	matStreetStraight = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/street_h.png")
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	material2 = new THREE.MeshLambertMaterial(
-		map: textureStreetV
+	matStreetCorner = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/street_corner.png")
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	material3 = new THREE.MeshLambertMaterial(
-		map: textureStreetCrossing
+	matStreetCrossing = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/street_x4.png")
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	material4 = new THREE.MeshLambertMaterial(
-		map: textureWhite
+	matWhite = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/white.png")
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	material5 = new THREE.MeshLambertMaterial(
+	matWalk = new THREE.MeshLambertMaterial(
 		map: THREE.ImageUtils.loadTexture("textures/walkway.png")
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([material1, material2, material3, material4, material5]))
+	matStreetT = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/street_t.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([
+		matStreetStraight, matStreetCorner, matStreetCrossing,  matWhite, matWalk, matStreetT]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
@@ -181,7 +198,7 @@ loadImage = require 'game/loadimage'
 console.log loadImage
 
 map = undefined
-loadImage 'maps/test2.png', (imageData) ->
+loadImage 'maps/test3.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width
