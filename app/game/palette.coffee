@@ -8,17 +8,17 @@ makeFloor = (materialIndex, rotation = 0) ->
 	floor.faces[ 0 ].materialIndex = materialIndex
 	return floor
 
-makeBox = () ->
+makeBox = (materialIndex = 6) ->
 	matrix = new THREE.Matrix4();
 	geometry = new THREE.Geometry()
 
 	pxGeometry = new THREE.PlaneGeometry( 500, 500 );
-	pxGeometry.faces[ 0 ].materialIndex = 0;
+	pxGeometry.faces[ 0 ].materialIndex = materialIndex;
 	pxGeometry.applyMatrix( matrix.makeRotationY( Math.PI / 2 ) );
 	pxGeometry.applyMatrix( matrix.makeTranslation( 250, 0, 0 ) );
 
 	nxGeometry = new THREE.PlaneGeometry( 500, 500 );
-	nxGeometry.faces[ 0 ].materialIndex = 0;
+	nxGeometry.faces[ 0 ].materialIndex = materialIndex;
 	nxGeometry.applyMatrix( matrix.makeRotationY( - Math.PI / 2 ) );
 	nxGeometry.applyMatrix( matrix.makeTranslation( - 250, 0, 0 ) );
 
@@ -28,11 +28,11 @@ makeBox = () ->
 	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 250, 0 ) );
 
 	pzGeometry = new THREE.PlaneGeometry( 500, 500 );
-	pzGeometry.faces[ 0 ].materialIndex = 0;
+	pzGeometry.faces[ 0 ].materialIndex = materialIndex;
 	pzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, 250 ) );
 
 	nzGeometry = new THREE.PlaneGeometry( 500, 500 );
-	nzGeometry.faces[ 0 ].materialIndex = 0;
+	nzGeometry.faces[ 0 ].materialIndex = materialIndex;
 	nzGeometry.applyMatrix( matrix.makeRotationY( Math.PI ) );
 	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, -250 ) );
 
@@ -59,7 +59,8 @@ exports.tiles =
 	12: makeFloor(1, 3)
 	13: makeFloor(2)
 	15: makeFloor(4)
-	16: makeBox()
+	16: makeBox(6)
+	17: makeBox(7)
 	42: new THREE.SphereGeometry(50, 8, 4)
 
 exports.palette =
@@ -67,7 +68,7 @@ exports.palette =
 	0x2000: [2]
 	0x3000: [2]
 	0x4000: [1]
-	0xe000: [13, 0, 0]
+	0xe000: [13, 0, 0]  # lonely 4-way
 	0xe001: [13, 0, 0]	# shouldn't exist
 	0xe002: [13, 0, 0]	# shouldn't exist
 	0xe003: [12, 0, 0]	# Corner
@@ -83,8 +84,10 @@ exports.palette =
 	0xe00d: [8, 0, 0]	# T
 	0xe00e: [7, 0, 0]	# T
 	0xe00f: [13, 0, 0]	# 4-way
-	0x00ff: [15, 0, 0]
-	0x8080: [16, 0, 0]
-	0xffff: [16, 16, 0]
-	0x00: [16, 42]
+	0x00ff: [15, 0, 0]	#	walkway
+	0x8080: [16, 0, 0]	# one story house
+	0x7f7f: [17]				# alternativve
+	0xffff: [16, 16, 0]	# two story house
+	0xfffe: [17, 17]		# alternative
+	0x0000: [16, 42] 		# butchery; goal
 

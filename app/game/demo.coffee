@@ -18,8 +18,8 @@ Car = require 'game/car'
 
 init = ->
 	container = document.getElementById("container")
-	camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 400 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
+	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
+	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
@@ -64,6 +64,10 @@ init = ->
 				tile |= isStreet(z, x - 1) << 1
 				tile |= isStreet(z + 1, x) << 2
 				tile |= isStreet(z, x + 1) << 3
+			else if tile is 0x8080 and Math.random() > 0.5
+				tile = 0x7f7f
+			else if tile is 0xffff and Math.random() > 0.5
+				tile = 0xfffe
 
 			stack = palette[tile] or []
 			for item, h in stack
@@ -98,8 +102,8 @@ init = ->
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
-	matWhite = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/white.png")
+	matRoof = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/roof.png")
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
@@ -113,8 +117,18 @@ init = ->
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
+	matWall1 = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/tile_house_blue.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	matWall2 = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/tile_house_red.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
 	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([
-		matStreetStraight, matStreetCorner, matStreetCrossing,  matWhite, matWalk, matStreetT]))
+		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT, matWall1, matWall2]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
