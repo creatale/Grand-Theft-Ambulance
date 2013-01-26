@@ -22,6 +22,8 @@ class Wheel
 
 		fixDef = new b2FixtureDef
 		fixDef.density = 1
+		# fixDef.friction = 0.1
+		# fixDef.restitution = 0.1
 		fixDef.isSensor = true
 		fixDef.shape = new b2PolygonShape()
 		fixDef.shape.SetAsBox @width/2, @length/2
@@ -64,7 +66,8 @@ class Wheel
 		# substracts sideways velocity from this wheel's velocity vector and returns the remaining front-facing velocity vector
 		velocity = @body.GetLinearVelocity()
 		sidewaysAxis = @getDirectionVector()
-		dotprod = Math.sqrt(velocity.x*sidewaysAxis.x + velocity.y*sidewaysAxis.y)
+		dotprod = velocity.x*sidewaysAxis.x + velocity.y*sidewaysAxis.y
+
 		return {
 			x:sidewaysAxis.x*dotprod
 			y:sidewaysAxis.y*dotprod
@@ -83,7 +86,7 @@ module.exports = class Car
 			y: -4
 		@angle = Math.PI
 		@power = 60
-		@maxSteerAngle = 20
+		@maxSteerAngle = 50
 		@maxSpeed = 60
 
 		@wheelAngle = 0
@@ -92,7 +95,7 @@ module.exports = class Car
 		def.position = new b2Vec2 @position.x, @position.y
 		def.angle = @angle
 		def.linearDamping = 0.15
-		# def.bullet = true
+		def.bullet = true
 		def.angularDamping = 0.3
 		@body = @world.CreateBody def
 

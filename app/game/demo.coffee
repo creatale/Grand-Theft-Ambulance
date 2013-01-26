@@ -9,6 +9,7 @@ b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 # b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
 b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 
+# Box2D.Common.b2Settings.b2_timeToSleep = 100
 
 fogExp2 = true
 container = undefined
@@ -36,7 +37,7 @@ init = ->
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
-	world = new b2World new b2Vec2(0,0), false
+	world = new b2World new b2Vec2(0,0), true
 
 	debugDraw = new b2DebugDraw()
 	ctx = document.getElementById("debug").getContext("2d")
@@ -75,9 +76,9 @@ init = ->
 	bodyDef = new b2BodyDef()
 	bodyDef.type = b2Body.b2_staticBody
 	fixDef = new b2FixtureDef()
-	fixDef.density = 1
+	fixDef.density = 1.0
 	fixDef.friction = 0.0
-	fixDef.restitution = 0.25
+	fixDef.restitution = 0.5
 	fixDef.shape = new b2PolygonShape()
 	fixDef.shape.SetAsBox 5, 5
 
@@ -119,8 +120,8 @@ init = ->
 
 				# physics
 				if tile in [0x8080, 0x7f7f, 0xffff, 0xfffe, 0x0000]
-					bodyDef.position.x = x * 5 - worldHalfWidth*5
-					bodyDef.position.y = z * 5 - worldHalfDepth*5
+					bodyDef.position.x = x * 5 - worldHalfWidth * 5
+					bodyDef.position.y = z * 5 - worldHalfDepth * 5
 					world.CreateBody(bodyDef).CreateFixture(fixDef)
 
 			x++
@@ -230,6 +231,21 @@ animate = ->
 	requestAnimationFrame animate
 	render()
 	stats.update()
+
+physicsLoop = ->
+	fps = 20
+	timeStep = 1.0/fps
+	
+	playerCar.updatePhysics timeStep, controls
+	world.Step timeStep, 1, 1
+	world.ClearForces()
+
+	setTimeout(physicsLoop, 1000/fps)
+	canvas = document.getElementById("debug")
+	canvas.width = canvas.width;
+	ctx = canvas.getContext('2d')
+	ctx.translate worldHalfWidth*10 , worldHalfDepth*10
+	world.DrawDebugData()
 render = ->
 	delta = clock.getDelta()
 
@@ -237,17 +253,14 @@ render = ->
 	# playerCar.physics.frontLeftWheel.ApplyImpulse f, playerCar.physics.frontLeftWheel.GetPosition()
 	# playerCar.physicsObj.ApplyTorque 100000000
 
-	playerCar.updatePhysics delta, controls
 
-	world.Step delta, 8, 3
-	world.ClearForces()
 	# playerCar.update()
 	# camera.position.x = playerCar.root.position.x
 	# camera.position.z = playerCar.root.position.z
 	# camera.lookAt playerCar.root.position
 
-	renderer.render scene, camera
-	world.DrawDebugData()
+	
+	# renderer.render scene, camera
 unless Detector.webgl
 	Detector.addGetWebGLMessage()
 	document.getElementById("container").innerHTML = ""
@@ -264,9 +277,10 @@ loadImage 'maps/test2.png', (imageData) ->
 	worldHalfWidth = worldWidth / 2
 	worldHalfDepth = worldDepth / 2
 	init()
-	animate()
+	# animate()
+	physicsLoop()
+
 
 data = generateHeight(worldWidth, worldDepth)
 clock = new THREE.Clock()
-
 
