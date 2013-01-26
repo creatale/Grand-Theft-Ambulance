@@ -1,9 +1,9 @@
 makeFloor = (materialIndex) ->
 	matrix = new THREE.Matrix4()
 
-	floor = new THREE.PlaneGeometry(100, 100)
+	floor = new THREE.PlaneGeometry(500, 500)
 	floor.applyMatrix(matrix.makeRotationX( -Math.PI / 2 ))
-	floor.applyMatrix(matrix.makeTranslation(0, -50, 0 ));
+	floor.applyMatrix(matrix.makeTranslation(0, -250, 0 ));
 	floor.faces[ 0 ].materialIndex = materialIndex
 	return floor
 
@@ -11,29 +11,29 @@ makeBox = () ->
 	matrix = new THREE.Matrix4();
 	geometry = new THREE.Geometry()
 
-	pxGeometry = new THREE.PlaneGeometry( 100, 100 );
+	pxGeometry = new THREE.PlaneGeometry( 500, 500 );
 	pxGeometry.faces[ 0 ].materialIndex = 1;
 	pxGeometry.applyMatrix( matrix.makeRotationY( Math.PI / 2 ) );
-	pxGeometry.applyMatrix( matrix.makeTranslation( 50, 0, 0 ) );
+	pxGeometry.applyMatrix( matrix.makeTranslation( 250, 0, 0 ) );
 
-	nxGeometry = new THREE.PlaneGeometry( 100, 100 );
+	nxGeometry = new THREE.PlaneGeometry( 500, 500 );
 	nxGeometry.faces[ 0 ].materialIndex = 1;
 	nxGeometry.applyMatrix( matrix.makeRotationY( - Math.PI / 2 ) );
-	nxGeometry.applyMatrix( matrix.makeTranslation( - 50, 0, 0 ) );
+	nxGeometry.applyMatrix( matrix.makeTranslation( - 250, 0, 0 ) );
 
-	pyGeometry = new THREE.PlaneGeometry( 100, 100 );
+	pyGeometry = new THREE.PlaneGeometry( 500, 500 );
 	pyGeometry.faces[ 0 ].materialIndex = 2;
 	pyGeometry.applyMatrix( matrix.makeRotationX( - Math.PI / 2 ) );
-	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 50, 0 ) );
+	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 250, 0 ) );
 
-	pzGeometry = new THREE.PlaneGeometry( 100, 100 );
+	pzGeometry = new THREE.PlaneGeometry( 500, 500 );
 	pzGeometry.faces[ 0 ].materialIndex = 1;
-	pzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, 50 ) );
+	pzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, 250 ) );
 
-	nzGeometry = new THREE.PlaneGeometry( 100, 100 );
+	nzGeometry = new THREE.PlaneGeometry( 500, 500 );
 	nzGeometry.faces[ 0 ].materialIndex = 1;
 	nzGeometry.applyMatrix( matrix.makeRotationY( Math.PI ) );
-	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, -50 ) );
+	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, -250 ) );
 
 	THREE.GeometryUtils.merge geometry, pxGeometry
 	THREE.GeometryUtils.merge geometry, nxGeometry
@@ -52,7 +52,7 @@ exports.tiles =
 exports.palette =
 	0: [1, 0, 0]
 	16: [2, 0, 0]
-	128: [42, 42, 0]
+	128: [3, 3, 42]
 	255: [3, 0, 0]
 
 

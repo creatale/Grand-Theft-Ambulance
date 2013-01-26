@@ -16,17 +16,17 @@ Controls = require 'game/controls'
 
 init = ->
 	container = document.getElementById("container")
-	camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 1500 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
+	camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 20000)
+	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
 	camera.lookAt new THREE.Vector3 0,0,0
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
 	
-	player = new THREE.Mesh new THREE.CubeGeometry 100, 100, 100
+	player = new THREE.Mesh new THREE.CubeGeometry 400, 200, 200
 	console.log player
 	player.position.x = 0
-	player.position.y = 1000
+	player.position.y = 0
 	player.position.z = 0
 	scene.add player
 
@@ -62,9 +62,9 @@ init = ->
 			for item, h in stack
 				continue unless tiles[item]?
 				console.log 'merge'
-				dummy.position.x = x * 100  - worldHalfWidth * 100
-				dummy.position.y = h * 100
-				dummy.position.z = z * 100  - worldHalfDepth * 100
+				dummy.position.x = x * 500  - worldHalfWidth * 500
+				dummy.position.y = h * 500
+				dummy.position.z = z * 500  - worldHalfDepth * 500
 				px = getY(x + 1, z)
 				nx = getY(x - 1, z)
 				pz = getY(x, z + 1)
