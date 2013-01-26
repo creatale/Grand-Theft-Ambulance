@@ -9,11 +9,28 @@ class Node
 	distanceTo: (position) =>
 		return Math.sqrt(Math.pow(@x - position.x, 2) + Math.pow(@y - position.y, 2))
 		
-	randomTo: =>
+	randomTo: (from) =>
 		if @toEdges.length > 1
-			return @toEdges[Math.floor(Math.random() * @toEdges.length)].to
+			if from?
+				edges = []
+				for edge in @toEdges
+					switch from.type
+						when 16
+							if not (edge.to.type is 64)
+								edges.push edge
+						when 32
+							if not (edge.to.type is 48)
+								edges.push edge
+						when 48
+							if not (edge.to.type is 32)
+								edges.push edge
+						when 64
+							if not (edge.to.type is 16)
+								edges.push edge
+				return edges[Math.floor(Math.random() * edges.length)].to
+			else
+				return @toEdges[Math.floor(Math.random() * @toEdges.length)].to
 		else if @toEdges.length > 0
-			# TODO: will die if no toEdge is present
 			return @toEdges[0].to
 		else
 			return new Node 0, 0, 0
@@ -243,8 +260,8 @@ class SimulationCar extends Car
 			x: (@position.x + direction.x * speed / length)
 			y: (@position.y + direction.y * speed / length)
 		# console.log @root.position
-		@root.position.x = @position.x * @tileSize - globalOffset.x
-		@root.position.z = @position.y * @tileSize - globalOffset.y
+		@root.position.x = @position.y * @tileSize - globalOffset.y
+		@root.position.z = @position.x * @tileSize - globalOffset.x
 		# console.log @root.position
 		return
 		
@@ -258,7 +275,7 @@ class SimulationCar extends Car
 		@to.occupiedBy = @
 		@from = @to
 		@to = @nextNode
-		@nextNode = @nextNode.randomTo()
+		@nextNode = @nextNode.randomTo(@from)
 
 #
 # drive
@@ -280,14 +297,14 @@ module.exports.TrafficSimulation = class TrafficSimulation
 		# console.log playerPosition
 		# span
 		@spawn
-			x: playerPosition.x / @simulationParameters.tileSize
-			y: playerPosition.y / @simulationParameters.tileSize
+			x: playerPosition.y / @simulationParameters.tileSize
+			y: playerPosition.x / @simulationParameters.tileSize
 		# move
 		@move deltaT
 		# despawn
 		@despawn
-			x: playerPosition.x / @simulationParameters.tileSize
-			y: playerPosition.y / @simulationParameters.tileSize
+			x: playerPosition.y / @simulationParameters.tileSize
+			y: playerPosition.x / @simulationParameters.tileSize
 		# console.log @cars
 		
 	spawn: (playerPosition) =>
@@ -295,7 +312,7 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			nodes = @streetGraph.findNodes(playerPosition, @simulationParameters.spawnRadius)
 			from = @streetGraph.randomNode nodes
 			to = from.randomTo()
-			car = new SimulationCar(0, from, to, to.randomTo(), @simulationParameters.tileSize)
+			car = new SimulationCar(0, from, to, to.randomTo(from), @simulationParameters.tileSize)
 			car.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 			@scene.add car.root
 			@cars.push car
