@@ -131,8 +131,20 @@ init = ->
 		ambient: 0xbbbbbb
 		vertexColors: THREE.VertexColors
 	)
+	matButchery = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/tile_house_meat.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+	matButcheryEntrance = new THREE.MeshLambertMaterial(
+		map: THREE.ImageUtils.loadTexture("textures/tile_parking.png")
+		ambient: 0xbbbbbb
+		vertexColors: THREE.VertexColors
+	)
+
 	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([
-		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT, matWall1, matWall2]))
+		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT,
+		matWall1, matWall2, matButchery, matButcheryEntrance]))
 	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
