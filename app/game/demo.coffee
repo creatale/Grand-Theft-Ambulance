@@ -186,6 +186,27 @@ generateHeight = (width, height) ->
 getY = (x, z) ->
 	(data[x + z * worldWidth] * 0.2) | 0
 
+# crash stuff
+formatDollar = (num) ->
+	p = num.toFixed(2).split(".")
+	chars = p[0].split("").reverse()
+	newstr = ""
+	count = 0
+	for x of chars
+		count++
+		if count % 3 is 1 and count isnt 1
+			newstr = chars[x] + "," + newstr
+		else
+			newstr = chars[x] + newstr
+	newstr + "." + p[1]
+
+#TODO: replace with proper code.
+cash = 0
+setInterval(->
+	cash += 1000
+	$('#cash').text(formatDollar(cash))
+, 500)
+	
 #
 animate = ->
 	requestAnimationFrame animate
