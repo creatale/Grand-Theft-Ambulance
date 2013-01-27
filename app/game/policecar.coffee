@@ -63,7 +63,7 @@ module.exports = class PoliceCar extends Car
 				# AAAAAAAHHHH...
 
 
-		@lastForward = (@lastForward + 1) % 4
+		@lastForward = 0 #(@lastForward + 1) % 4
 
 		@controls =
 			moveLeft: steerLeft and (@lastForward is 0 or steerHard)

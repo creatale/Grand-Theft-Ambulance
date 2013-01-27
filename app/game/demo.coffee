@@ -68,7 +68,8 @@ init = ->
 	playerCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 
 	playerCar.onGrabbed = ->
-		if playerCar.root.position.clone().sub(victim.root.position).length() < 500 and cargoCount < 4
+		carDirection = new THREE.Vector3(-Math.cos(playerCar.root.rotation.y) * 250, 0, -Math.sin(playerCar.root.rotation.y) * 250)
+		if playerCar.root.position.clone().sub(carDirection).sub(victim.root.position).length() < 500 and cargoCount < 4
 			placeVictim()
 			cargoCount++
 			policeCount++
@@ -213,6 +214,7 @@ init = ->
 	directionalLight.position.set(1, 1, 0.5).normalize()
 	scene.add directionalLight
 	renderer = new THREE.WebGLRenderer(clearColor: 0xffffff)
+	renderer.setDepthTest(false)
 	renderer.setSize $(container).width(), $(container).height()
 	container.appendChild renderer.domElement
 	renderer.domElement.style.position = "absolute"
@@ -331,8 +333,9 @@ policeCount = 0
 setInterval(->
 	#policeCount = (policeCount + 1) % 4
 	policeFrame = $("#police-frame")
+	return if policeFrame.children().length is policeCount
 	policeFrame.empty()
-	for index in [1..policeCount]
+	for index in [1..policeCount] by 1
 		policeFrame.append('<img src="ui/police.png">')
 , 500)
 
@@ -401,24 +404,30 @@ render = ->
 
 	b2Transform = require
 
-#	policeCount = 3
+	#policeCount = 3
 
-	if policeCars.length < policeCount and not nextPoliceSpawn?
+	if policeCars.length < policeCount < 5 and not nextPoliceSpawn?
 		nextPoliceSpawn =
 			time: clock.getElapsedTime() + 3
-			position: playerCar.body.GetPosition().Copy()
+			position:
+				root: playerCar.root.position.clone()
+				x: playerCar.body.GetPosition().x
+				y: playerCar.body.GetPosition().y
 		console.log nextPoliceSpawn
 	else if nextPoliceSpawn? and clock.getElapsedTime() > nextPoliceSpawn.time
 		policeCar = new PoliceCar(world, playerCar, map)
 		policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
-		policeCar.body.SetPosition(nextPoliceSpawn.position)
+		policeCar.body.SetPosition(new b2Vec2(nextPoliceSpawn.position.x, nextPoliceSpawn.position.y))
+		policeCar.root.position = nextPoliceSpawn.position.root
 		console.log 'Adding police', nextPoliceSpawn.position
 		#policeCar.body.angle = nextPoliceSpawn.angle
 		scene.add policeCar.root
+		#policeCar.updatePhysics(0, {})
 		policeCars.push policeCar
 		nextPoliceSpawn = null
 	else
 		for policeCar, idx in policeCars
+			continue unless policeCar?
 			if policeCar.root.position.clone().sub(playerCar.root.position).length() > 10000
 				console.log 'Removing remote police car'
 				scene.remove policeCar.root
