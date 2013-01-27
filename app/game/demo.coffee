@@ -328,7 +328,7 @@ setInterval(->
 , 500)
 
 # police ui
-policeCount = 0
+policeCount = 3
 setInterval(->
 	policeFrame = $("#police-frame")
 	return if policeFrame.children().length is policeCount

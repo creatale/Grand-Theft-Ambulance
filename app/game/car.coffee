@@ -94,11 +94,40 @@ class Wheel
 
 module.exports = class Car
 	# car geometry manual parameters
-	constructor: (@world, @position = {x: 0, y: 0}, @density = 0.3, @power = 12) ->
-		@modelScale = 1
-		@backWheelOffset = 2
-		@autoWheelGeometry = true
+	constructor: (@world, options) ->
 
+		@options = _.extend
+			position:
+				x: 0
+				y: 0
+			density: 0.3
+			friction: 1
+			restitution: 0.1
+			bullet: true
+			linearDamping: 0.45
+			angularDamping: 0.6
+			power: 12
+			width: 1.28 
+			length: 3.32
+			angle: Math.PI
+			maxSteerAngle: Math.PI / 4
+			maxSpeed: 100
+			frontDrive: false
+			frontWheelsY: -1
+			rearWheelsY: 0.8
+			leftWheelsX: -0.6
+			rightWheelsX: 0.6
+			wheelWidth: 0.25
+			wheelLength: 0.36
+			renderOffset:
+				x: 0
+				y: 100
+
+		, options
+		
+		@modelScale = 1
+
+		@power = @options.power
 		# car geometry parameters automatically set from wheel mesh
 		# - assumes wheel mesh is front left wheel in proper global
 		#   position with respect to body mesh
@@ -111,60 +140,48 @@ module.exports = class Car
 		@root = new THREE.Object3D()
 
 		@bodyMesh = null
-
 		@bodyGeometry = null
-
 		@bodyMaterials = null
 		# internal helper variables
 
 		@loaded = false
-
 		@meshes = []
 		
 		@grabbing = false
-
 		@texture = "textures/ambulance.png"
 
 		#physics
 
-		@width = 1.28 
-		@length = 3.32
-		@angle = Math.PI
-		@power = @power
-		@maxSteerAngle = Math.PI / 4
-		@maxSpeed = 100
-
 		@wheelAngle = 0
 		def = new b2BodyDef()
 		def.type = b2Body.b2_dynamicBody
-		def.position = new b2Vec2 @position.x, @position.y
-		def.angle = @angle
-		def.linearDamping = 0.45
-		def.bullet = true
-		def.angularDamping = 0.6
+		def.position = new b2Vec2 @options.position.x, @options.position.y
+		def.angle = @options.angle
+		def.linearDamping = @options.linearDamping
+		def.bullet = @options.bullet
+		def.angularDamping = @options.angularDamping
 		@body = @world.CreateBody def
 
 		fixDef = new b2FixtureDef()
-		fixDef.density = @density
-		fixDef.friction = 1
-		fixDef.restitution = 0.1
+		fixDef.density = @options.density
+		fixDef.friction = @options.friction
+		fixDef.restitution = @options.restitution
 		fixDef.shape = new b2PolygonShape()
-		fixDef.shape.SetAsBox @width/2, @length/2
+		fixDef.shape.SetAsBox @options.width/2, @options.length/2
 		@body.CreateFixture fixDef
 
 
-		wheelWidth = 0.25
-		wheelLength = 0.36
+		
 
 		@wheels = []
 
-		@wheels.push new Wheel @world, @, {x: -0.6 , y: -1}, wheelWidth, wheelLength, true, false
+		@wheels.push new Wheel @world, @, {x: @options.leftWheelsX, y: @options.frontWheelsY}, @options.wheelWidth, @options.wheelLength, true, @options.frontDrive
 
-		@wheels.push new Wheel @world, @, {x: 0.6, y: -1}, wheelWidth, wheelLength, true, false
+		@wheels.push new Wheel @world, @, {x: @options.rightWheelsX, y: @options.frontWheelsY}, @options.wheelWidth, @options.wheelLength, true, @options.frontDrive
 
-		@wheels.push new Wheel @world, @, {x: -0.6, y: 0.8}, wheelWidth, wheelLength, false, true
+		@wheels.push new Wheel @world, @, {x: @options.leftWheelsX, y: @options.rearWheelsY}, @options.wheelWidth, @options.wheelLength, false, not @options.frontDrive
 
-		@wheels.push new Wheel @world, @, {x: 0.6, y: 0.8}, wheelWidth, wheelLength, false, true
+		@wheels.push new Wheel @world, @, {x: @options.rightWheelsX, y: @options.rearWheelsY}, @options.wheelWidth, @options.wheelLength, false, not @options.frontDrive
 
 	enableShadows: (enable) =>
 		for mesh in @meshes
@@ -227,10 +244,7 @@ module.exports = class Car
 			animFunc()
 
 		# translate physics representation to renderer
-		offset =
-			x: 0
-			y: 100
-		posOffset = vectorMath.rotate offset, @body.GetAngle()
+		posOffset = vectorMath.rotate @options.renderOffset, @body.GetAngle()
 		pos = @body.GetPosition()
 		@root.position.x = pos.x * 100 + posOffset.x
 		@root.position.z = pos.y * 100 + posOffset.y

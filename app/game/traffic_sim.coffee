@@ -209,7 +209,10 @@ module.exports.SimulationParameters = class SimulationParameters
 	
 class SimulationCar extends Car
 	constructor: (world, @type, @from, @to, @nextNode, @tileSize) ->
-		super world, {x: @from.x * @tileSize / 100, y: @from.y * @tileSize / 100}
+		super world, 
+			position:
+				x: @from.x * @tileSize / 100
+				y: @from.y * @tileSize / 100
 		#@modelScale = 2.5
 		# mat = new b2Mat22()
 		# mat.Set(Math.atan2(@to.x - @from.x, @to.y - @from.y))
