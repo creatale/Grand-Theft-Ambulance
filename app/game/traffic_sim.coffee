@@ -197,7 +197,7 @@ class SimulationCar extends Car
 			x: @from.x
 			y: @from.y
 
-		@texture = "textures/limousine_#{ Math.round(Math.random() * 6 + 0.5) }.png"
+		@texture = "textures/limousine_#{ Math.round(Math.random() * 8 + 0.5) }.png"
 
 	loadPartsJSON: (bodyURL) =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
