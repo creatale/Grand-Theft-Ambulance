@@ -8,6 +8,7 @@ module.exports = class PoliceCar extends Car
 			y: 5
 		@lastForward = 0
 		@texture = "textures/police.png"
+		@controls = {}
 
 	loadPartsJSON: (bodyURL) =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
@@ -31,7 +32,7 @@ module.exports = class PoliceCar extends Car
 
 	kiUpdate: (delta) =>
 		# Get direction vector towards player.
-		angle = @body.GetAngle() + Math.PI
+		angle = -@body.GetAngle() + Math.PI
 		direction = @playerCar.root.position.clone().sub(@root.position).normalize()
 		relativeDirection =
 			x: direction.x * Math.cos(angle) - direction.z * Math.sin(angle)
@@ -43,11 +44,14 @@ module.exports = class PoliceCar extends Car
 		driveFast = relativeDirection.y > 0 and Math.abs(relativeDirection.x) < 0.2
 		steerHard = relativeDirection.y < 0 or Math.abs(relativeDirection.x) > 0.15
 
+		#console.log relativeDirection, steerLeft, steerRight, relativeDirection.y < 0
+
 		# WATCH OUT THE WALL... skreeech
 		tileAhead = @lookAhead angle
 		if tileAhead in [0x8080, 0xffff]
 			tileLeft = @lookAhead(angle + Math.PI / 3)
 			tileRight = @lookAhead(angle - Math.PI / 3)
+			#console.log tileAhead, tileLeft, tileRight
 			steerHard = true
 			if tileRight not in [0x8080, 0xffff]
 				steerRight = true
