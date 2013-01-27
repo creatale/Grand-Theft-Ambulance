@@ -14,6 +14,7 @@ mat = undefined
 raceSince = undefined
 victim = undefined
 victimHint = undefined
+butcherHint = undefined
 parkingPlace = undefined
 graph = undefined
 cash = 0
@@ -25,7 +26,7 @@ Controls = require 'game/controls'
 Car = require 'game/car'
 PoliceCar = require 'game/policecar'
 Victim = require 'game/victim'
-VictimHint = require 'game/victimhint'
+MapHint = require 'game/maphint'
 {tiles, palette} = require './palette'
 {StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
 
@@ -66,8 +67,8 @@ init = ->
 
 	playerCar.onGrabbed = ->
 		if playerCar.root.position.clone().sub(victim.root.position).length() < 500 and cargoCount < 4
-			placeVictim()
 			cargoCount++
+			placeVictim()
 			document.getElementById('grab').play()
 
 	scene.add playerCar.root
@@ -232,6 +233,8 @@ placeVictim = () ->
 	if victim?
 		scene.remove victim.root
 		scene.remove victimHint.root
+	if butcherHint?
+		scene.remove butcherHint.root
 
 	randomNode = graph.randomNode([])
 	console.log randomNode
@@ -241,12 +244,19 @@ placeVictim = () ->
 	victim.root.position.x = (randomNode.y - worldHalfDepth) * 500
 	victim.root.position.z = (randomNode.x - worldHalfWidth) * 500
 	
-	victimHint = new VictimHint()
-	victimHint.loadParts()
+	victimHint = new MapHint()
+	victimHint.loadParts("ui/victim_hint.png")
 	scene.add victimHint.root
+	
+	if cargoCount > 0
+		butcherHint = new MapHint()
+		butcherHint.loadParts("ui/butcher_hint.png")
+		scene.add butcherHint.root
 	
 	updateHints = ->
 		victimHint.update victim, playerCar
+		if butcherHint?
+			butcherHint.update {root: position: parkingPlace}, playerCar
 	
 	# traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), world, scene, {x: map.width * 250, y: map.height * 250})
 	
@@ -363,6 +373,8 @@ render = ->
 		if cargoCount > 0
 			document.getElementById('kaching').play()
 		cash += cargoCount * 10000
+		if butcherHint?
+			scene.remove butcherHint.root
 		cargoCount = 0
 
 	# traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
