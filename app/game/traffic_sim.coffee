@@ -1,4 +1,7 @@
 Car = require './car'
+b2Vec2 = Box2D.Common.Math.b2Vec2
+b2Transform = Box2D.Common.Math.b2Transform
+b2Mat22 = Box2D.Common.Math.b2Mat22
 
 class Node
 	constructor: (@x, @y, @type, @children = []) ->
@@ -55,23 +58,38 @@ module.exports.StreetGraph = class StreetGraph
 			edge.to.fromEdges.push edge
 			edge.from.toEdges.push edge
 	
-	findNodes: (position, radius) =>
+	findNodes: (position, minRadius, maxRadius) =>
 		result = []
 		for node in @nodes
-			if node.distanceTo(position) < radius
+			distance = node.distanceTo(position)
+			if (distance < minRadius) or (distance > maxRadius)
 				result.push node
 		return result
-	
+		
+	occupiedNodes: =>
+		result = []
+		for node in @nodes
+			if node.occupiedBy?
+				result.push node
+		return result
+		
 	randomNode: (exclude) =>
+		isExcluded = (node, excluded) =>
+			for excludedNode in excluded
+				if node is excludedNode
+					return true
+			return false
+			
 		nodes = []
 		for node in @nodes
-			if not (node in exclude)
+			if isExcluded node, exclude
 				nodes.push node
 		if nodes.length > 1
 			return nodes[Math.floor(Math.random() * nodes.length)]
 		else if nodes.length > 0
 			return nodes[0]
 		else
+			console.log 'tada'
 			return @nodes[Math.floor(Math.random() * @nodes.length)]
 	
 	@fromMapData: (mapData) =>
@@ -187,17 +205,21 @@ module.exports.StreetGraph = class StreetGraph
 		return edges
 	
 module.exports.SimulationParameters = class SimulationParameters
-	constructor: (@spawnRadius, @numCars, @tileSize, @despawnRadius) ->
+	constructor: (@minSpawnRadius, @maxSpawnRadius, @numCars, @tileSize, @despawnRadius) ->
 	
 class SimulationCar extends Car
-	constructor: (@world, @type, @from, @to, @nextNode, @tileSize) ->
-		super
+	constructor: (world, @type, @from, @to, @nextNode, @tileSize) ->
+		super world, {x: @from.x * @tileSize / 100, y: @from.y * @tileSize / 100}
 		#@modelScale = 2.5
-		@position =
-			x: @from.x
-			y: @from.y
+		# mat = new b2Mat22()
+		# mat.Set(Math.atan2(@to.x - @from.x, @to.y - @from.y))
+		# @body.SetTransform(new b2Transform(new b2Vec2(@from.x * @tileSize / 100, @from.y * @tileSize / 100), mat))
 
 		@texture = "textures/limousine_#{ Math.round(Math.random() * 8 + 0.5) }.png"
+		@controls =
+			moveLeft: false
+			moveRight: false
+			moveForward: false
 
 	loadPartsJSON: (bodyURL) =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
@@ -253,40 +275,63 @@ class SimulationCar extends Car
 			# @loaded = true
 			# @callback if @callback
 
-	inRange: (playerPosition, maxDistance) =>
-		return Math.sqrt(Math.pow(playerPosition.x - @position.x, 2) + Math.pow(playerPosition.y - @position.y, 2)) < maxDistance
+	inRange: (playerPosition, maxDistance, tileSize) =>
+		return Math.sqrt(Math.pow(playerPosition.x - @body.GetPosition().y * 100 / tileSize, 2) + Math.pow(playerPosition.y - @body.GetPosition().x * 100 / tileSize, 2)) < maxDistance
 		
-	move: (deltaT, globalOffset) =>
-		# break if @nextNode is occupied and ||nextNode.car.velocity|| < ||@velocity||
-		# break completely if crossing is occupied
-		speed = 0
-		switch @type
-			when 0
-				speed = 0.025
-		if @to.occupiedBy?
-			speed = speed / 2
-		if @nextNode.occupiedBy?
-			speed = speed / 4
-		direction =
-			x: (@to.x - @position.x)
-			y: (@to.y - @position.y)
+	# move: (deltaT, globalOffset) =>
+		# # break if @nextNode is occupied and ||nextNode.car.velocity|| < ||@velocity||
+		# # break completely if crossing is occupied
+		# speed = 0
+		# switch @type
+			# when 0
+				# speed = 0.025
+		# if @to.occupiedBy?
+			# speed = speed / 2
+		# if @nextNode.occupiedBy?
+			# speed = speed / 4
+		# direction =
+			# x: (@to.x - @position.x)
+			# y: (@to.y - @position.y)
 
-		@root.rotation.y = Math.atan2(direction.y, direction.x)
+		# @root.rotation.y = Math.atan2(direction.y, direction.x)
 
-		# console.log direction
-		length = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y, 2))
-		@position =
-			x: (@position.x + direction.x * speed / length)
-			y: (@position.y + direction.y * speed / length)
-		# console.log @root.position
-		@root.position.x = @position.y * @tileSize - globalOffset.y
-		@root.position.z = @position.x * @tileSize - globalOffset.x
-		# console.log @root.position
-		return
+		# # console.log direction
+		# length = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y, 2))
+		# @position =
+			# x: (@position.x + direction.x * speed / length)
+			# y: (@position.y + direction.y * speed / length)
+		# # console.log @root.position
+		# @root.position.x = @position.y * @tileSize - globalOffset.y
+		# @root.position.z = @position.x * @tileSize - globalOffset.x
+		# # console.log @root.position
+		# return
 		
-	atDestination: =>
+	calculateControls: =>
+		forward = false
+		left = false
+		right = false
+		if (not @to.occupiedBy?) and (not @nextNode.occupiedBy?)
+			forward = true
+			
+		currentAngle = @body.GetAngle()
+		newAngle = Math.atan2(@to.x, @to.y)
+		
+		angleDiff = newAngle - currentAngle
+		
+		if Math.abs(angleDiff) > 0.35 # approx. 10 degrees
+			if angleDiff > 0
+				left = true
+			else
+				right = true
+			
+		@controls =
+			moveLeft: left
+			moveRight: right
+			moveForward: true
+		
+	atDestination: (tileSize) =>
 		# console.log @to.distanceTo(@position)
-		return @to.distanceTo(@position) < 1 # @tileSize
+		return @to.distanceTo({x: @body.GetPosition().y * 100 / tileSize, y: @body.GetPosition().x * 100 / tileSize}) < 2 # @tileSize
 		# return false
 		
 	findNewDestination: =>
@@ -310,25 +355,31 @@ module.exports.TrafficSimulation = class TrafficSimulation
 	constructor: (playerPosition, @streetGraph, @simulationParameters, @world, @scene, @globalOffset) ->
 		@cars = []
 		@spawn playerPosition
-		@oldPlayerPostion = playerPosition
+		@last = 0
 	
 	step: (deltaT, playerPosition) =>
-		# console.log playerPosition
-		# span
-		@spawn
-			x: playerPosition.y / @simulationParameters.tileSize
-			y: playerPosition.x / @simulationParameters.tileSize
-		# move
-		@move deltaT
-		# despawn
-		@despawn
-			x: playerPosition.y / @simulationParameters.tileSize
-			y: playerPosition.x / @simulationParameters.tileSize
-		# console.log @cars
+		@last += deltaT
+		# console.log @last
+		if @last > 1
+			# console.log playerPosition
+			# span
+			@spawn
+				x: playerPosition.y / @simulationParameters.tileSize
+				y: playerPosition.x / @simulationParameters.tileSize
+			# move
+			@move deltaT
+			# despawn
+			console.log @cars
+			# @despawn
+				# x: playerPosition.y / @simulationParameters.tileSize
+				# y: playerPosition.x / @simulationParameters.tileSize
+			# console.log @cars
+			@last = 0
 		
 	spawn: (playerPosition) =>
 		while @cars.length < @simulationParameters.numCars
-			nodes = @streetGraph.findNodes(playerPosition, @simulationParameters.spawnRadius)
+			nodes = @streetGraph.findNodes(playerPosition, @simulationParameters.minSpawnRadius, @simulationParameters.maxSpawnRadius)
+			nodes = nodes.concat @streetGraph.occupiedNodes()
 			from = @streetGraph.randomNode nodes
 			to = from.randomTo()
 			car = new SimulationCar(@world, 0, from, to, to.randomTo(from), @simulationParameters.tileSize)
@@ -338,19 +389,28 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			
 	move: (deltaT) =>
 		for car in @cars
-			car.move deltaT, @globalOffset
-			if car.atDestination()
-				# console.log 'tada'
+			if car.atDestination(@simulationParameters.tileSize)
 				car.findNewDestination @streetGraph
-			# console.log car.position.x, car.position.y
+			car.calculateControls()
 			
 	despawn: (playerPosition) =>
-		index = 0
-		while index < @cars.length
-			car = @cars[index]
-			if not(car.inRange(playerPosition, @simulationParameters.despawnRadius))
+		cars = []
+		for car in @cars
+			if not(car.inRange(playerPosition, @simulationParameters.despawnRadius, @simulationParameters.tileSize))
 				@scene.remove car.root
-				@cars.splice(index, 1)
+				car.from.occupiedBy = null
 			else
-				index++
+				cars.push car
+		@cars = cars
+		
+	updatePhysics: (timeStep) =>
+		for car in @cars
+			car.updatePhysics timeStep, car.controls
+			console.log car.body.GetPosition()
+		return
+		
+	update: (deltaT) =>
+		for car in @cars
+			car.update deltaT, car.controls
+		return
 				

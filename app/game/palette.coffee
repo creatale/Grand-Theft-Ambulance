@@ -78,14 +78,14 @@ exports.palette =
 	0xe004: [13, 0, 0]	# shouldn't exist
 	0xe005: [13, 0, 0]	# straight
 	0xe006: [9, 0, 0]		# Corner
-	0xe007: [6, 0, 0]	# T
+	0xe007: [8, 0, 0]	# T
 	0xe008: [13, 0, 0]	# shouldn't exist
 	0xe009: [11, 0, 0]	# Corner
 	0xe00a: [12, 0, 0]	# straight
-	0xe00b: [5, 0, 0]	# T
+	0xe00b: [7, 0, 0]	# T
 	0xe00c: [10, 0, 0]	# Corner
-	0xe00d: [8, 0, 0]	# T
-	0xe00e: [7, 0, 0]	# T
+	0xe00d: [6, 0, 0]	# T
+	0xe00e: [5, 0, 0]	# T
 	0xe00f: [13, 0, 0]	# 4-way
 	0x00ff: [15, 0, 0]	#	walkway
 	0x0080: [20]				# Park

@@ -228,6 +228,15 @@ init = ->
 	console.log graph
 
 	placeVictim()
+	
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 4, 5, 500, 50), world, scene, {x: map.width * 250, y: map.height * 250})
+	
+	#
+	$(window).resize ->
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+		renderer.setSize $(container).width(), $(container).height()
+		controls.handleResize()
 
 placeVictim = () ->
 	if victim?
@@ -272,15 +281,6 @@ placeVictim = () ->
 		victimHint.update victim, playerCar
 		if butcherHint?
 			butcherHint.update {root: position: parkingPlace}, playerCar
-	
-	# traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), world, scene, {x: map.width * 250, y: map.height * 250})
-	
-	#
-	$(window).resize ->
-		camera.aspect = window.innerWidth / window.innerHeight
-		camera.updateProjectionMatrix()
-		renderer.setSize $(container).width(), $(container).height()
-		controls.handleResize()
 
 loadTexture = (path, callback) ->
 	image = new Image()
@@ -347,6 +347,7 @@ physicsLoop = ->
 	timeStep = 1.0/fps
 	
 	playerCar.updatePhysics timeStep, controls
+	traffic.updatePhysics timeStep
 	for policeCar in policeCars
 		policeCar.updatePhysics timeStep, policeCar.controls
 	world.Step timeStep, 6, 2
@@ -362,6 +363,8 @@ physicsLoop = ->
 render = ->
 	deltaT = clock.getDelta()
 	playerCar.update deltaT, controls
+	traffic.step deltaT, {x: playerCar.body.GetPosition().x, y: playerCar.body.GetPosition().z}
+	traffic.update deltaT
 	for policeCar in policeCars
 		policeCar.update deltaT
 		policeCar.kiUpdate deltaT
@@ -422,7 +425,6 @@ render = ->
 				policeCars.splice(idx, 1)
 
 
-	# traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
 	carSpeed = playerCar.getSpeedKMH()

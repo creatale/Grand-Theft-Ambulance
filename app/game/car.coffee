@@ -94,7 +94,7 @@ class Wheel
 
 module.exports = class Car
 	# car geometry manual parameters
-	constructor: (@world) ->
+	constructor: (@world, @position = {x: 0, y: 0}) ->
 		@modelScale = 1
 		@backWheelOffset = 2
 		@autoWheelGeometry = true
@@ -129,9 +129,6 @@ module.exports = class Car
 
 		@width = 1.28 
 		@length = 3.32
-		@position =
-			x: 0
-			y: 0
 		@angle = Math.PI
 		@power = 10
 		@maxSteerAngle = Math.PI / 4

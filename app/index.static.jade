@@ -1,21 +1,49 @@
 extends _layout
+
 block content
-	#container//-(style="display:none")
-	//- canvas#debug(width="2000", height="2000")
-	#cargo-frame
-		img#cargo-0(src="ui/heart-0.png")
-		img#cargo-1(src="ui/heart-0.png")
-		img#cargo-2(src="ui/heart-0.png")
-		img#cargo-3(src="ui/heart-0.png")
-		#victim-timeleft
-	#crash-frame
-		span#cash 1,000.00
-		&nbsp;&nbsp;
-		img(style="vertical-align:middle", src="ui/bitcoin.png")
-	#police-frame
-		img(src="ui/police.png")
-		img(src="ui/police.png")
-		img(src="ui/police.png")
+	#game
+		#container
+		//- canvas#debug(width="2000px", height="2000px")
+		#cargo-frame
+			img#cargo-0(src="../ui/heart-1.png")
+			img#cargo-1(src="../ui/heart-0.png")
+			img#cargo-2(src="../ui/heart-0.png")
+			img#cargo-3(src="../ui/heart-0.png")		
+		#crash-frame
+			span#cash 1,000.00
+			&nbsp;&nbsp;
+			img(style="vertical-align:middle", src="ui/bitcoin.png")
+		#police-frame
+			img(src="../ui/police.png")
+			img(src="../ui/police.png")
+			img(src="../ui/police.png")
+	#loading
+		#loadingText
+			.inner
+				h1 Welcome to Heart City, stranger!
+				p Here is, where the fun dies on the streets. Hurry up to gather the remains before the officials can.
+				p
+					table
+						tr
+							td
+								img(src="../ui/key_up.png", alt="Up-Key")
+							td Accelerate
+						tr
+							td
+								img(src="../ui/key_down.png", alt="Down-Key")
+							td Brake
+						tr
+							td
+								img(src="../ui/key_left.png", alt="Left-Key")
+								img(src="../ui/key_right.png", alt="Right-Key")
+							td Steer
+						tr
+							td
+								img(src="../ui/key_space.png", alt="Space-Key")
+							td Use body grabber
+				p Press this &rarr; 
+					button#startbutton Button
+					| to begin
 	#sounds
 		audio#bg0(src='sound/bg0.mp3', preload='auto', autoplay, loop )
 		audio#bg1(src='sound/bg1.mp3', preload='auto', loop)
@@ -25,3 +53,4 @@ block content
 		audio#sirene(src='sound/sirene.mp3', preload='auto')
 		audio#kaching(src='sound/cash.mp3', preload='auto')
 		audio#grab(src='sound/grab.mp3', preload='auto')
+
