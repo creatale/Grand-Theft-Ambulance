@@ -2,7 +2,7 @@ extends _layout
 block content
 	#container
 	#cargo-frame
-		img#cargo-0(src="ui/heart-1.png")
+		img#cargo-0(src="ui/heart-0.png")
 		img#cargo-1(src="ui/heart-0.png")
 		img#cargo-2(src="ui/heart-0.png")
 		img#cargo-3(src="ui/heart-0.png")		
@@ -15,8 +15,11 @@ block content
 		img(src="ui/police.png")
 		img(src="ui/police.png")
 	#sounds
-		audio#bg1(src='sound/bg1.mp3', preload='auto', autoplay, loop )
+		audio#bg0(src='sound/bg0.mp3', preload='auto', autoplay, loop )
+		audio#bg1(src='sound/bg1.mp3', preload='auto', loop)
 		audio#bg2(src='sound/bg2.mp3', preload='auto', loop)
 		audio#door1(src='sound/door1.mp3', preload='auto')
 		audio#door2(src='sound/door2.mp3', preload='auto')
 		audio#sirene(src='sound/sirene.mp3', preload='auto')
+		audio#kaching(src='sound/cash.mp3', preload='auto')
+		audio#grab(src='sound/grab.mp3', preload='auto')

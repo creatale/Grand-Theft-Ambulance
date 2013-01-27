@@ -11,6 +11,11 @@ renderer = undefined
 mesh = undefined
 mat = undefined
 raceSince = undefined
+victim = undefined
+victimHint = undefined
+parkingPlace = undefined
+graph = undefined
+cash = 0
 worldWidth = 32
 worldDepth = 32
 worldHalfWidth = worldWidth / 2
@@ -36,6 +41,11 @@ init = ->
 
 	playerCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 
+	playerCar.onGrabbed = ->
+		if playerCar.root.position.clone().sub(victim.root.position).length() < 500 and cargoCount < 4
+			placeVictim()
+			cargoCount++
+			document.getElementById('grab').play()
 
 	scene.add playerCar.root
 	scene.add camera
@@ -81,6 +91,8 @@ init = ->
 				tile = 0x7f7f
 			else if tile is 0xffff and Math.random() > 0.5
 				tile = 0xfffe
+			else if tile is 0x0101
+				parkingPlace = new THREE.Vector3(x * 500  - worldHalfWidth * 500, 0, z * 500  - worldHalfDepth * 500)
 
 			stack = palette[tile] or []
 			for item, h in stack
@@ -175,9 +187,16 @@ init = ->
 
 	graph = StreetGraph.fromMapData(map)
 	console.log graph
+
+	placeVictim()
+
+placeVictim = () ->
+	if victim?
+		scene.remove victim.root
+		scene.remove victimHint.root
+
 	randomNode = graph.randomNode([])
 	console.log randomNode
-
 	victim = new Victim()
 	victim.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 	scene.add victim.root
@@ -226,15 +245,16 @@ formatDollar = (num) ->
 cash = 0
 #TODO: replace with proper code.
 setInterval(->
-	cash += 1000
+#	cash += 1000
 	$('#cash').text(formatDollar(cash))
 , 500)
 
 # cargo ui
 cargoCount = 0
+
 #TODO: replace with proper code.
 setInterval(->
-	cargoCount = (cargoCount + 1) % 5
+#	cargoCount = (cargoCount + 1) % 5
 	for index in [0..3]
 		if cargoCount > index
 			$("#cargo-" + index).attr("src", "ui/heart-1.png")
@@ -246,7 +266,7 @@ setInterval(->
 policeCount = 0
 #TODO: replace with proper code.
 setInterval(->
-	policeCount = (policeCount + 1) % 4
+	#policeCount = (policeCount + 1) % 4
 	policeFrame = $("#police-frame")
 	policeFrame.empty()
 	for index in [0..policeCount]
@@ -271,21 +291,23 @@ render = ->
 		document.getElementById('bg1').volume = (1 - raceSince)
 		document.getElementById('bg2').play()
 		document.getElementById('bg2').volume = 1
-		console.log 'Fading in'
 	else if 1 < raceSince < 15
 		document.getElementById('bg1').pause()
-		console.log 'Race time!'
 	else if 15 < raceSince < 20
 		document.getElementById('bg2').volume = Math.min(Math.max((20 - raceSince) / 5, 0), 1)
 		document.getElementById('bg1').play()
-		document.getElementById('bg1').volume = Math.min(Math.max(raceSince - 19, 0), 1)
-		console.log 'Fading out'
+		document.getElementById('bg1').volume = Math.min(Math.max(raceSince - 19, 0), 0.9)
 	else if raceSince > 20
 		document.getElementById('bg2').pause()
 		document.getElementById('bg1').play()
-		document.getElementById('bg1').volume = 1
-		console.log 'Normal'
+		document.getElementById('bg1').volume = 0.9
 		raceSince = undefined
+
+	if parkingPlace.clone().sub(playerCar.root.position).length() < 300
+		if cargoCount > 0
+			document.getElementById('kaching').play()
+		cash += cargoCount * 10000
+		cargoCount = 0
 
 	traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
@@ -309,5 +331,7 @@ loadImage 'maps/test2.png', (imageData) ->
 	worldHalfDepth = worldDepth / 2
 	init()
 	animate()
+	document.getElementById('bg0').pause()
+	document.getElementById('bg1').play()
 
 clock = new THREE.Clock()

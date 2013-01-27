@@ -160,6 +160,8 @@ module.exports = class Car
 				keyFrame++
 				@updateSprite(keyFrame)
 				if keyFrame < 18
+					if keyFrame is 10
+						@onGrabbed() if @onGrabbed?
 					setTimeout(animFunc, 80)
 				else
 					@grabbing = false
