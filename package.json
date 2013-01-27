@@ -3,6 +3,12 @@
     "version": "0.0.1",
     "description": "Grand Theft Ambulance",
 	"author": "Christoph Schulz",
+	"contributors": [
+		"Christian Dittrich",
+		"Sebastian Gepperth",
+		"Wolfgang Fellger",
+		"Patrick Wachowiak"
+	]
     "dependencies": {
 		"javascript-brunch": ">= 1.0 < 1.5",
 		"coffee-script-brunch": ">= 1.0 < 1.5",
@@ -17,6 +23,7 @@
 		"mocha": "*",
 		"expect.js": "0.1.2"
 	},
+	"license": "CC-BY-NC-SA",
     "engines": {
         "node": ">=0.8.0",
         "npm": ">=1.1.0"
