@@ -101,7 +101,7 @@ module.exports = class Car
 				x: 0
 				y: 0
 			density: 0.3
-			friction: 1
+			friction: 0.1
 			restitution: 0.1
 			bullet: true
 			linearDamping: 0.45

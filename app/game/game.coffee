@@ -395,7 +395,7 @@ render = ->
 		if not busted
 			gameDiv = $('#game')
 			for i in [0..10]
-				gameDiv.append "<div class='busted-line' style='-webkit-transform-origin:#{i*15}em 0em; -webkit-animation: busted 2s #{i*0.1}s linear forwards'></div>"
+				gameDiv.append "<div class='busted-line' style='-webkit-transform-origin:#{i*15}em 0em; -webkit-animation: busted 0.5s #{i*0.01}s linear forwards'></div>"
 			gameDiv.append "<p id='busted-text'>BUSTED!</p>"
 			busted = true
 		setTimeout () ->
@@ -432,7 +432,7 @@ render = ->
 
 	b2Transform = require
 
-	if policeCars.length < policeCount < 5 and not nextPoliceSpawn?
+	if policeCars.length < policeCount < 10 and not nextPoliceSpawn?
 		nextPoliceSpawn =
 			time: clock.getElapsedTime() + 3
 			position:
