@@ -361,9 +361,13 @@ physicsLoop = ->
 	# ctx.translate worldHalfWidth*10 , worldHalfDepth*10
 	# world.DrawDebugData()
 
+blockedSince = null
+gameOver = false
+
 render = ->
 	deltaT = clock.getDelta()
-	playerCar.update deltaT, controls
+	if not gameOver
+		playerCar.update deltaT, controls
 	traffic.step deltaT, {x: playerCar.body.GetPosition().x, y: playerCar.body.GetPosition().z}
 	traffic.update deltaT
 	for policeCar in policeCars
@@ -372,6 +376,22 @@ render = ->
 		if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000
 			raceSince = 0 unless 0 < raceSince < 2
 			document.getElementById('sirene').play()
+			if policeCar.root.position.clone().sub(playerCar.root.position).length() < 1000 and playerCar.getSpeedKMH() < 5
+				if not blockedSince?
+					blockedSince = clock.getElapsedTime()
+				else if clock.getElapsedTime() - blockedSince > 5
+					gameOver = true
+			else
+				blockedSince = null
+
+	if gameOver
+		document.getElementById('bg1').pause()
+		document.getElementById('bg2').pause()
+		policeCount = 100
+		setTimeout () ->
+			location.reload()
+		, 10000
+		return
 
 	raceSince += deltaT
 
