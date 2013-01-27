@@ -94,7 +94,7 @@ class Wheel
 
 module.exports = class Car
 	# car geometry manual parameters
-	constructor: (@world, @position = {x: 0, y: 0}) ->
+	constructor: (@world, @position = {x: 0, y: 0}, @density = 0.3, @power = 12) ->
 		@modelScale = 1
 		@backWheelOffset = 2
 		@autoWheelGeometry = true
@@ -130,7 +130,7 @@ module.exports = class Car
 		@width = 1.28 
 		@length = 3.32
 		@angle = Math.PI
-		@power = 10
+		@power = @power
 		@maxSteerAngle = Math.PI / 4
 		@maxSpeed = 100
 
@@ -145,8 +145,8 @@ module.exports = class Car
 		@body = @world.CreateBody def
 
 		fixDef = new b2FixtureDef()
-		fixDef.density = 0.3
-		fixDef.friction = 5
+		fixDef.density = @density
+		fixDef.friction = 1
 		fixDef.restitution = 0.1
 		fixDef.shape = new b2PolygonShape()
 		fixDef.shape.SetAsBox @width/2, @length/2

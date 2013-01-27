@@ -381,7 +381,6 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			nodes = @streetGraph.findNodes(playerPosition, @simulationParameters.minSpawnRadius, @simulationParameters.maxSpawnRadius)
 			nodes = nodes.concat @streetGraph.occupiedNodes()
 			from = @streetGraph.randomNode nodes
-			console.log from
 			to = from.randomTo()
 			car = new SimulationCar(@world, 0, from, to, to.randomTo(from), @simulationParameters.tileSize)
 			car.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'

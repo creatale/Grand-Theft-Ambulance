@@ -329,9 +329,7 @@ setInterval(->
 
 # police ui
 policeCount = 0
-#TODO: replace with proper code.
 setInterval(->
-	#policeCount = (policeCount + 1) % 4
 	policeFrame = $("#police-frame")
 	return if policeFrame.children().length is policeCount
 	policeFrame.empty()
@@ -404,21 +402,19 @@ render = ->
 
 	b2Transform = require
 
-	#policeCount = 3
-
 	if policeCars.length < policeCount < 5 and not nextPoliceSpawn?
 		nextPoliceSpawn =
 			time: clock.getElapsedTime() + 3
 			position:
-				root: playerCar.root.position.clone()
+				#root: playerCar.root.position.clone()
 				x: playerCar.body.GetPosition().x
 				y: playerCar.body.GetPosition().y
 		console.log nextPoliceSpawn
 	else if nextPoliceSpawn? and clock.getElapsedTime() > nextPoliceSpawn.time
-		policeCar = new PoliceCar(world, playerCar, map)
+		policeCar = new PoliceCar(world, playerCar, map, nextPoliceSpawn.position)
 		policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
-		policeCar.body.SetPosition(new b2Vec2(nextPoliceSpawn.position.x, nextPoliceSpawn.position.y))
-		policeCar.root.position = nextPoliceSpawn.position.root
+		#policeCar.body.SetPosition(new b2Vec2(nextPoliceSpawn.position.x, nextPoliceSpawn.position.y))
+		#policeCar.root.position = nextPoliceSpawn.position.root
 		console.log 'Adding police', nextPoliceSpawn.position
 		#policeCar.body.angle = nextPoliceSpawn.angle
 		scene.add policeCar.root

@@ -1,8 +1,8 @@
 Car = require './car'
 
 module.exports = class PoliceCar extends Car
-	constructor: (@world, @playerCar, @map) ->
-		super
+	constructor: (@world, @playerCar, @map, @position) ->
+		super(@world, @position, 0.9, 40)
 		@position =
 			x: 5
 			y: 5
