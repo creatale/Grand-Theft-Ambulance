@@ -375,10 +375,10 @@ render = ->
 	for policeCar in policeCars
 		policeCar.update deltaT
 		policeCar.kiUpdate deltaT
-		if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000
+		if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000 and not gameOver
 			raceSince = 0 unless 0 < raceSince < 2
 			document.getElementById('sirene').play()
-			if policeCar.root.position.clone().sub(playerCar.root.position).length() < 1000 and playerCar.getSpeedKMH() < 5
+			if policeCar.root.position.clone().sub(playerCar.root.position).length() < 800 and playerCar.getSpeedKMH() < 5
 				blocked = true
 				if not blockedSince?
 					blockedSince = clock.getElapsedTime()
@@ -398,6 +398,7 @@ render = ->
 				gameDiv.append "<div class='busted-line' style='-webkit-transform-origin:#{i*15}em 0em; -webkit-animation: busted 0.5s #{i*0.01}s linear forwards'></div>"
 			gameDiv.append "<p id='busted-text'>BUSTED!</p>"
 			busted = true
+			document.getElementById('jail').play()
 		setTimeout () ->
 			location.reload()
 		, 10000
@@ -434,7 +435,7 @@ render = ->
 
 	if policeCars.length < policeCount < 10 and not nextPoliceSpawn?
 		nextPoliceSpawn =
-			time: clock.getElapsedTime() + 3
+			time: clock.getElapsedTime() + 5
 			position:
 				#root: playerCar.root.position.clone()
 				x: playerCar.body.GetPosition().x
