@@ -6,6 +6,9 @@ module.exports = class PoliceCar extends Car
 			position: @position
 			density: 0.9
 			power: 40
+			renderOffset:
+				x: 0
+				y: 0
 		@position =
 			x: 5
 			y: 5
