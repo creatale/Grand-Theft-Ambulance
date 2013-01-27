@@ -407,7 +407,7 @@ unless Detector.webgl
 loadImage = require 'game/loadimage'
 
 map = undefined
-loadImage 'maps/test2.png', (imageData) ->
+loadImage 'maps/64map.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width
