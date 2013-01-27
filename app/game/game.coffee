@@ -328,7 +328,7 @@ setInterval(->
 , 500)
 
 # police ui
-policeCount = 3
+policeCount = 0
 setInterval(->
 	policeFrame = $("#police-frame")
 	return if policeFrame.children().length is policeCount
@@ -363,6 +363,7 @@ physicsLoop = ->
 
 blockedSince = null
 gameOver = false
+busted = false
 
 render = ->
 	deltaT = clock.getDelta()
@@ -389,7 +390,14 @@ render = ->
 	if gameOver
 		document.getElementById('bg1').pause()
 		document.getElementById('bg2').pause()
-		policeCount = 100
+		# policeCount = 100
+		
+		if not busted
+			gameDiv = $('#game')
+			for i in [0..10]
+				gameDiv.append "<div class='busted-line' style='-webkit-transform-origin:#{i*15}em 0em; -webkit-animation: busted 2s #{i*0.1}s linear forwards'></div>"
+			gameDiv.append "<p id='busted-text'>BUSTED!</p>"
+			busted = true
 		setTimeout () ->
 			location.reload()
 		, 10000

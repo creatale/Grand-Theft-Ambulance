@@ -8,6 +8,7 @@
 	font-style: normal
 	
 #loading
+	z-index: 1002
 	position: absolute
 	bottom: 0
 	left: 0
@@ -60,6 +61,7 @@
 	left: 0
 	width: 100%
 	height: 100%
+	overflow: hidden
 	
 #container 
 	position: absolute
@@ -68,12 +70,14 @@
 	width: 100%
 	height: 100%
 
-#cargo-frame 
+#cargo-frame
+	z-index: 1001
 	position: absolute
 	top: 12px
 	left: 12px
 
 #victim-timeleft
+	z-index: 1001
 	font-family: 'Pricedown'
 	color: white
 	text-shadow: 2px 2px 0px #333
@@ -81,20 +85,66 @@
 	font-size: 18px
 
 #crash-frame
+	z-index: 1001
 	font-family: 'Pricedown'
 	position: absolute
 	top: 12px
 	right: 12px
 
-#cash 
+#cash
+	z-index: 1001
 	color: white
 	text-shadow: 2px 2px 0px #333
 	font-weight: bold
 	font-size: 48px
 
-#police-frame 
+#police-frame
+	z-index: 1001
 	position: absolute
 	bottom: 12px
 	left: 0
 	width: 100%
 	text-align: center
+
+.busted-line
+	z-index: 1000
+	background #000
+	width 0px
+	height 120px
+	// -webkit-transform-origin 0% 0%
+	-webkit-transform rotate(85deg)
+
+
+#busted-text
+	font-family: 'Pricedown'
+	text-shadow: 2px 2px 0px #333
+	font-weight: bold
+	color: #B00
+	position: absolute 
+	top: -10em
+	width: 100%
+	text-align: center
+	font-size: 20em
+	-webkit-animation: busted-text 2s 2.5s linear forwards
+
+
+@keyframes busted {
+	from {
+		width: 0px
+	}
+
+	to {
+		width: 100%
+	}
+}
+
+@keyframes busted-text {
+	0%   { top: 0em; -webkit-animation-timing-function:ease-in;  }
+	37%  { top:500px; -webkit-animation-timing-function:ease-out; }
+	55%  { top:375px; -webkit-animation-timing-function:ease-in;  }
+	73%  { top:500px; -webkit-animation-timing-function:ease-out; }
+	82%  { top:465px; -webkit-animation-timing-function:ease-in;  }
+	91%  { top:500px; -webkit-animation-timing-function:ease-out; }
+	96%  { top:490px; -webkit-animation-timing-function:ease-in;  }
+	100% { top:500px; }
+}
