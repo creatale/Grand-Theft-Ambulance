@@ -45,7 +45,7 @@ b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 
 init = ->
 	container = document.getElementById("container")
-	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 2500)
+	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 5000)
 	camera.position.y = 2000
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
@@ -380,6 +380,8 @@ render = ->
 	# traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
+	carSpeed = playerCar.getSpeedKMH()
+	camera.position.y = THREE.Math.clamp (Math.pow(Math.max(0,carSpeed - 10),1.01) - 20 + camera.position.y), 2000, 3000
 	camera.lookAt playerCar.root.position
 	updateHints()
 	renderer.render scene, camera
