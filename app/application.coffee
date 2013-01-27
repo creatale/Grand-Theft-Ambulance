@@ -10,7 +10,12 @@ Application =
 				'': 'index'
 
 			index: =>
+				$(window).keypress =>
+					$(window).unbind('keypress')
+					$('#loading').remove()
+					@demo = require 'game/demo'
 				$('#startbutton').click =>
+					$(window).unbind('keypress')
 					$('#loading').remove()
 					@demo = require 'game/demo'
 

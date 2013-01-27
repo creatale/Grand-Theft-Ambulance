@@ -229,7 +229,7 @@ init = ->
 
 	placeVictim()
 	
-	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 4, 5, 500, 50), world, scene, {x: map.width * 250, y: map.height * 250})
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
 	$(window).resize ->

@@ -369,7 +369,7 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			# move
 			@move deltaT
 			# despawn
-			console.log @cars
+			# console.log @cars
 			# @despawn
 				# x: playerPosition.y / @simulationParameters.tileSize
 				# y: playerPosition.x / @simulationParameters.tileSize
@@ -381,6 +381,7 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			nodes = @streetGraph.findNodes(playerPosition, @simulationParameters.minSpawnRadius, @simulationParameters.maxSpawnRadius)
 			nodes = nodes.concat @streetGraph.occupiedNodes()
 			from = @streetGraph.randomNode nodes
+			console.log from
 			to = from.randomTo()
 			car = new SimulationCar(@world, 0, from, to, to.randomTo(from), @simulationParameters.tileSize)
 			car.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
@@ -406,7 +407,7 @@ module.exports.TrafficSimulation = class TrafficSimulation
 	updatePhysics: (timeStep) =>
 		for car in @cars
 			car.updatePhysics timeStep, car.controls
-			console.log car.body.GetPosition()
+			# console.log car.body.GetPosition()
 		return
 		
 	update: (deltaT) =>
