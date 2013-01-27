@@ -24,7 +24,8 @@ This is harder because Chrome suppresses local XHR requests (thefuq?). You have 
   1. `cake install`
   1. `brunch watch --server`
 1. Open [localhost:3333](http://localhost:3333) in Chrome
-1. Check out some very mad hacks in `app/`
+1. See `app/` for sources and ready made assets
+1. See `art/` for raw assets
 
 # License
 
