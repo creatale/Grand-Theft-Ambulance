@@ -4,7 +4,7 @@ makeFloor = (materialIndex, rotation = 0) ->
 	floor = new THREE.PlaneGeometry(500, 500)
 	floor.applyMatrix(matrix.makeRotationZ( rotation * Math.PI / 2 ))
 	floor.applyMatrix(matrix.makeRotationX( -Math.PI / 2 ))
-	floor.applyMatrix(matrix.makeTranslation(0, -250, 0 ));
+	floor.applyMatrix(matrix.makeTranslation(0, -10, 0 ));
 	floor.faces[ 0 ].materialIndex = materialIndex
 	return floor
 
@@ -15,26 +15,26 @@ makeBox = (materialIndex = 6) ->
 	pxGeometry = new THREE.PlaneGeometry( 500, 500 );
 	pxGeometry.faces[ 0 ].materialIndex = materialIndex;
 	pxGeometry.applyMatrix( matrix.makeRotationY( Math.PI / 2 ) );
-	pxGeometry.applyMatrix( matrix.makeTranslation( 250, 0, 0 ) );
+	pxGeometry.applyMatrix( matrix.makeTranslation( 250, 240, 0 ) );
 
 	nxGeometry = new THREE.PlaneGeometry( 500, 500 );
 	nxGeometry.faces[ 0 ].materialIndex = materialIndex;
 	nxGeometry.applyMatrix( matrix.makeRotationY( - Math.PI / 2 ) );
-	nxGeometry.applyMatrix( matrix.makeTranslation( - 250, 0, 0 ) );
+	nxGeometry.applyMatrix( matrix.makeTranslation( - 250, 240, 0 ) );
 
 	pyGeometry = new THREE.PlaneGeometry( 500, 500 );
 	pyGeometry.faces[ 0 ].materialIndex = 3;
 	pyGeometry.applyMatrix( matrix.makeRotationX( - Math.PI / 2 ) );
-	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 250, 0 ) );
+	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 490, 0 ) );
 
 	pzGeometry = new THREE.PlaneGeometry( 500, 500 );
 	pzGeometry.faces[ 0 ].materialIndex = materialIndex;
-	pzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, 250 ) );
+	pzGeometry.applyMatrix( matrix.makeTranslation( 0, 240, 250 ) );
 
 	nzGeometry = new THREE.PlaneGeometry( 500, 500 );
 	nzGeometry.faces[ 0 ].materialIndex = materialIndex;
 	nzGeometry.applyMatrix( matrix.makeRotationY( Math.PI ) );
-	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 0, -250 ) );
+	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 240, -250 ) );
 
 	THREE.GeometryUtils.merge geometry, pxGeometry
 	THREE.GeometryUtils.merge geometry, nxGeometry

@@ -253,6 +253,8 @@ module.exports = class Car
 			@bodyMesh = new THREE.Mesh @bodyGeometry, bodyFaceMaterial
 			@bodyMesh.scale.set s, s, s
 			@root.add @bodyMesh
+			# Help against z fighting
+			@root.position.y = Math.random() * 10
 			
 			# front left wheel
 			delta.multiplyVectors @wheelOffset, new THREE.Vector3(s, s, s)

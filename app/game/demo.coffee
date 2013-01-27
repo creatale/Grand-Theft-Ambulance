@@ -17,14 +17,14 @@ worldHalfDepth = worldDepth / 2
 Controls = require 'game/controls'
 Car = require 'game/car'
 PoliceCar = require 'game/policecar'
+Victim = require 'game/victim'
 {tiles, palette} = require './palette'
 {StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
 
 init = ->
 	container = document.getElementById("container")
-	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000)
-	camera.position.y = 1500
-	camera.position.y = 1000 #getY(worldHalfWidth, worldHalfDepth) * 100 + 100
+	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 2500)
+	camera.position.y = 2000
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
 	
@@ -171,8 +171,16 @@ init = ->
 
 	graph = StreetGraph.fromMapData(map)
 	console.log graph
-	
-	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(0, 20, 500, 50), scene, {x: map.width * 250, y: map.height * 250})
+	randomNode = graph.randomNode([])
+	console.log randomNode
+
+	victim = new Victim()
+	victim.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+	scene.add victim.root
+	victim.root.position.x = (randomNode.y - worldHalfDepth) * 500
+	victim.root.position.z = (randomNode.x - worldHalfWidth) * 500
+
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
 	$(window).resize ->
