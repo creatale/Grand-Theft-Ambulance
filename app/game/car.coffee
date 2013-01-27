@@ -134,7 +134,7 @@ module.exports = class Car
 			y: 0
 		@angle = Math.PI
 		@power = 10
-		@maxSteerAngle = Math.PI / 3
+		@maxSteerAngle = Math.PI / 4
 		@maxSpeed = 100
 
 		@wheelAngle = 0
@@ -161,14 +161,13 @@ module.exports = class Car
 
 		@wheels = []
 
-		@wheels.push new Wheel @world, @, {x: -0.6 , y: -1}, wheelWidth, wheelLength, true, true
+		@wheels.push new Wheel @world, @, {x: -0.6 , y: -1}, wheelWidth, wheelLength, true, false
 
-		@wheels.push new Wheel @world, @, {x: 0.6, y: -1}, wheelWidth, wheelLength, true, true
+		@wheels.push new Wheel @world, @, {x: 0.6, y: -1}, wheelWidth, wheelLength, true, false
 
-		@wheels.push new Wheel @world, @, {x: -0.6, y: 0.8}, wheelWidth, wheelLength, false, false
+		@wheels.push new Wheel @world, @, {x: -0.6, y: 0.8}, wheelWidth, wheelLength, false, true
 
-		@wheels.push new Wheel @world, @, {x: 0.6, y: 0.8}, wheelWidth, wheelLength, false, false
-
+		@wheels.push new Wheel @world, @, {x: 0.6, y: 0.8}, wheelWidth, wheelLength, false, true
 
 	enableShadows: (enable) =>
 		for mesh in @meshes
@@ -298,7 +297,7 @@ module.exports = class Car
 		for wheel in @wheels
 			wheel.killSidewaysVelocity()
 
-		incr = @maxSteerAngle/3*delta
+		incr = @maxSteerAngle*delta
 
 		if controls.moveLeft
 			@wheelAngle = THREE.Math.clamp @wheelAngle-incr, -@maxSteerAngle, 0
@@ -312,12 +311,13 @@ module.exports = class Car
 			wheel.addAngle @wheelAngle
 
 		# console.log @getSpeedKMH(), @maxSpeed
+		localVelocity = @getLocalVelocity()
 		if controls.moveForward and @getSpeedKMH() < @maxSpeed
 			baseVect =
 				x: 0
 				y: -1
 		else if controls.moveBackward
-			if @getLocalVelocity().y < 0
+			if localVelocity.y < 0
 				baseVect =
 					x: 0
 					y: 1.3
@@ -326,14 +326,14 @@ module.exports = class Car
 					x: 0
 					y: 0.7
 		else
-			# if @getLocalVelocity().y < 0
-			# 	baseVect =
-			# 		x: 0
-			# 		y: 0.5
-			# else
-			baseVect =
-				x: 0
-				y: 0
+			if localVelocity.y < -0.1
+				baseVect =
+					x: 0
+					y: 1
+			else
+				baseVect =
+					x: 0
+					y: 0
 
 		fvect = 
 			x: @power*baseVect.x
