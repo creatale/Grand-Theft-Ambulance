@@ -251,7 +251,8 @@ placeVictim = () ->
 	
 	initialDistance = new THREE.Vector2(victim.root.position.x - playerCar.root.position.x, 
 		victim.root.position.z - playerCar.root.position.z).length()
-		
+	
+	victimTimeleftLast = victimTimeleft
 	victimTimeleft = (5 + (initialDistance / 500) * 2.5) | 0
 	victimBleedTicker = () ->
 		victimTimeleft--
@@ -260,7 +261,8 @@ placeVictim = () ->
 			setTimeout(victimBleedTicker, 1000)
 		else
 			placeVictim()
-	victimBleedTicker()
+	if not victimTimeleftLast? or victimTimeleftLast <= 0
+		victimBleedTicker()
 	
 	if cargoCount > 0
 		butcherHint = new MapHint()

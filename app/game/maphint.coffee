@@ -1,4 +1,6 @@
 module.exports = class MapHint
+	hintIndex = 0
+	
 	constructor: ->
 		@root = null
 
@@ -12,7 +14,7 @@ module.exports = class MapHint
 		
 	update: (object, playerCar) =>
 		objectDir = new THREE.Vector2 object.root.position.x - playerCar.root.position.x, object.root.position.z - playerCar.root.position.z
-		if objectDir.length() > 500
+		if objectDir.length() > 400
 			objectDir.normalize()
 			@root.position.x = playerCar.root.position.x + objectDir.x * 400
 			@root.position.z = playerCar.root.position.z + objectDir.y * 400
@@ -21,5 +23,5 @@ module.exports = class MapHint
 			@root.position.x = object.root.position.x + -objectDir.x * 250
 			@root.position.z = object.root.position.z + -objectDir.y * 250
 		
-		@root.position.y = 15
+		@root.position.y = (hintIndex++ % 2) * 15
 		@root.rotation = Math.atan2(objectDir.x, objectDir.y)
