@@ -5,7 +5,7 @@ camera = undefined
 controls = undefined
 playerCar = undefined
 traffic = undefined
-policeCar = undefined
+policeCars = []
 scene = undefined
 world = undefined
 renderer = undefined
@@ -18,6 +18,7 @@ victimTimeleft = undefined
 butcherHint = undefined
 parkingPlace = undefined
 graph = undefined
+nextPoliceSpawn = undefined
 cash = 0
 worldWidth = 32
 worldDepth = 32
@@ -67,9 +68,11 @@ init = ->
 	playerCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 
 	playerCar.onGrabbed = ->
-		if playerCar.root.position.clone().sub(victim.root.position).length() < 500 and cargoCount < 4
-			cargoCount++
+		carDirection = new THREE.Vector3(-Math.cos(playerCar.root.rotation.y) * 250, 0, -Math.sin(playerCar.root.rotation.y) * 250)
+		if playerCar.root.position.clone().sub(carDirection).sub(victim.root.position).length() < 500 and cargoCount < 4
 			placeVictim()
+			cargoCount++
+			policeCount++
 			document.getElementById('grab').play()
 
 	scene.add playerCar.root
@@ -77,9 +80,6 @@ init = ->
 	camera.rotation.z = Math.PI
 	controls = new Controls()
 
-	policeCar = new PoliceCar(world, playerCar, map)
-	policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
-	scene.add policeCar.root
 
 	# sides
 	light = new THREE.Color(0xeeeeee)
@@ -214,6 +214,7 @@ init = ->
 	directionalLight.position.set(1, 1, 0.5).normalize()
 	scene.add directionalLight
 	renderer = new THREE.WebGLRenderer(clearColor: 0xffffff)
+	renderer.setDepthTest(false)
 	renderer.setSize $(container).width(), $(container).height()
 	container.appendChild renderer.domElement
 	renderer.domElement.style.position = "absolute"
@@ -229,6 +230,15 @@ init = ->
 	console.log graph
 
 	placeVictim()
+	
+	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
+	
+	#
+	$(window).resize ->
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+		renderer.setSize $(container).width(), $(container).height()
+		controls.handleResize()
 
 placeVictim = () ->
 	if victim?
@@ -273,15 +283,6 @@ placeVictim = () ->
 		victimHint.update victim, playerCar
 		if butcherHint?
 			butcherHint.update {root: position: parkingPlace}, playerCar
-	
-	# traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), world, scene, {x: map.width * 250, y: map.height * 250})
-	
-	#
-	$(window).resize ->
-		camera.aspect = window.innerWidth / window.innerHeight
-		camera.updateProjectionMatrix()
-		renderer.setSize $(container).width(), $(container).height()
-		controls.handleResize()
 
 loadTexture = (path, callback) ->
 	image = new Image()
@@ -290,6 +291,7 @@ loadTexture = (path, callback) ->
 
 	image.src = path
 	image
+
 
 # crash ui
 formatDollar = (num) ->
@@ -327,12 +329,11 @@ setInterval(->
 
 # police ui
 policeCount = 0
-#TODO: replace with proper code.
 setInterval(->
-	#policeCount = (policeCount + 1) % 4
 	policeFrame = $("#police-frame")
+	return if policeFrame.children().length is policeCount
 	policeFrame.empty()
-	for index in [0..policeCount]
+	for index in [1..policeCount] by 1
 		policeFrame.append('<img src="ui/police.png">')
 , 500)
 
@@ -347,7 +348,9 @@ physicsLoop = ->
 	timeStep = 1.0/fps
 	
 	playerCar.updatePhysics timeStep, controls
-	policeCar.updatePhysics timeStep, policeCar.controls
+	traffic.updatePhysics timeStep
+	for policeCar in policeCars
+		policeCar.updatePhysics timeStep, policeCar.controls
 	world.Step timeStep, 6, 2
 	world.ClearForces()
 
@@ -361,12 +364,16 @@ physicsLoop = ->
 render = ->
 	deltaT = clock.getDelta()
 	playerCar.update deltaT, controls
-	policeCar.update deltaT
-	policeCar.kiUpdate deltaT
+	traffic.step deltaT, {x: playerCar.body.GetPosition().x, y: playerCar.body.GetPosition().z}
+	traffic.update deltaT
+	for policeCar in policeCars
+		policeCar.update deltaT
+		policeCar.kiUpdate deltaT
+		if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000
+			raceSince = 0 unless 0 < raceSince < 2
+			document.getElementById('sirene').play()
+
 	raceSince += deltaT
-	if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000
-		raceSince = 0 unless 0 < raceSince < 2
-		document.getElementById('sirene').play()
 
 	if 0 < raceSince < 1
 		document.getElementById('bg1').volume = (1 - raceSince)
@@ -391,8 +398,38 @@ render = ->
 		if butcherHint?
 			scene.remove butcherHint.root
 		cargoCount = 0
+		policeCount = Math.max(policeCount - 1, 0)
 
-	# traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
+	b2Transform = require
+
+	if policeCars.length < policeCount < 5 and not nextPoliceSpawn?
+		nextPoliceSpawn =
+			time: clock.getElapsedTime() + 3
+			position:
+				#root: playerCar.root.position.clone()
+				x: playerCar.body.GetPosition().x
+				y: playerCar.body.GetPosition().y
+		console.log nextPoliceSpawn
+	else if nextPoliceSpawn? and clock.getElapsedTime() > nextPoliceSpawn.time
+		policeCar = new PoliceCar(world, playerCar, map, nextPoliceSpawn.position)
+		policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+		#policeCar.body.SetPosition(new b2Vec2(nextPoliceSpawn.position.x, nextPoliceSpawn.position.y))
+		#policeCar.root.position = nextPoliceSpawn.position.root
+		console.log 'Adding police', nextPoliceSpawn.position
+		#policeCar.body.angle = nextPoliceSpawn.angle
+		scene.add policeCar.root
+		#policeCar.updatePhysics(0, {})
+		policeCars.push policeCar
+		nextPoliceSpawn = null
+	else
+		for policeCar, idx in policeCars
+			continue unless policeCar?
+			if policeCar.root.position.clone().sub(playerCar.root.position).length() > 10000
+				console.log 'Removing remote police car'
+				scene.remove policeCar.root
+				policeCars.splice(idx, 1)
+
+
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
 	carSpeed = playerCar.getSpeedKMH()
