@@ -154,6 +154,7 @@ module.exports = class Car
 		# grab
 		if controls.grab and not @grabbing
 			@grabbing = true
+			document.getElementById('door1').play()
 			keyFrame = 0
 			animFunc = () =>
 				keyFrame++
@@ -162,6 +163,7 @@ module.exports = class Car
 					setTimeout(animFunc, 80)
 				else
 					@grabbing = false
+					document.getElementById('door2').play()
 			animFunc()
 		# speed decay
 

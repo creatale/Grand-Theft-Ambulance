@@ -10,6 +10,7 @@ scene = undefined
 renderer = undefined
 mesh = undefined
 mat = undefined
+raceSince = undefined
 worldWidth = 32
 worldDepth = 32
 worldHalfWidth = worldWidth / 2
@@ -261,6 +262,31 @@ render = ->
 	deltaT = clock.getDelta()
 	playerCar.update deltaT, controls
 	policeCar.update deltaT
+	raceSince += deltaT
+	if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000
+		raceSince = 0 unless 0 < raceSince < 2
+		document.getElementById('sirene').play()
+
+	if 0 < raceSince < 1
+		document.getElementById('bg1').volume = (1 - raceSince)
+		document.getElementById('bg2').play()
+		document.getElementById('bg2').volume = 1
+		console.log 'Fading in'
+	else if 1 < raceSince < 15
+		document.getElementById('bg1').pause()
+		console.log 'Race time!'
+	else if 15 < raceSince < 20
+		document.getElementById('bg2').volume = Math.min(Math.max((20 - raceSince) / 5, 0), 1)
+		document.getElementById('bg1').play()
+		document.getElementById('bg1').volume = Math.min(Math.max(raceSince - 19, 0), 1)
+		console.log 'Fading out'
+	else if raceSince > 20
+		document.getElementById('bg2').pause()
+		document.getElementById('bg1').play()
+		document.getElementById('bg1').volume = 1
+		console.log 'Normal'
+		raceSince = undefined
+
 	traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
