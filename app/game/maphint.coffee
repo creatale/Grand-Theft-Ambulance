@@ -14,8 +14,8 @@ module.exports = class MapHint
 		objectDir = new THREE.Vector2 object.root.position.x - playerCar.root.position.x, object.root.position.z - playerCar.root.position.z
 		if objectDir.length() > 500
 			objectDir.normalize()
-			@root.position.x = playerCar.root.position.x + objectDir.x * 500
-			@root.position.z = playerCar.root.position.z + objectDir.y * 500
+			@root.position.x = playerCar.root.position.x + objectDir.x * 400
+			@root.position.z = playerCar.root.position.z + objectDir.y * 400
 		else
 			objectDir.normalize()
 			@root.position.x = object.root.position.x + -objectDir.x * 250

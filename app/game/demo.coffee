@@ -14,6 +14,7 @@ mat = undefined
 raceSince = undefined
 victim = undefined
 victimHint = undefined
+victimTimeleft = undefined
 butcherHint = undefined
 parkingPlace = undefined
 graph = undefined
@@ -248,6 +249,19 @@ placeVictim = () ->
 	victimHint.loadParts("ui/victim_hint.png")
 	scene.add victimHint.root
 	
+	initialDistance = new THREE.Vector2(victim.root.position.x - playerCar.root.position.x, 
+		victim.root.position.z - playerCar.root.position.z).length()
+		
+	victimTimeleft = (5 + (initialDistance / 500) * 2.5) | 0
+	victimBleedTicker = () ->
+		victimTimeleft--
+		$("#victim-timeleft").text('Time left for ambulance ' + ((victimTimeleft / 60) | 0) + ':' + (victimTimeleft % 60))
+		if victimTimeleft > 0
+			setTimeout(victimBleedTicker, 1000)
+		else
+			placeVictim()
+	victimBleedTicker()
+	
 	if cargoCount > 0
 		butcherHint = new MapHint()
 		butcherHint.loadParts("ui/butcher_hint.png")
@@ -274,7 +288,6 @@ loadTexture = (path, callback) ->
 
 	image.src = path
 	image
-
 
 # crash ui
 formatDollar = (num) ->
