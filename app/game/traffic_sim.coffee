@@ -190,7 +190,7 @@ module.exports.SimulationParameters = class SimulationParameters
 	constructor: (@spawnRadius, @numCars, @tileSize, @despawnRadius) ->
 	
 class SimulationCar extends Car
-	constructor: (@type, @from, @to, @nextNode, @tileSize) ->
+	constructor: (@world, @type, @from, @to, @nextNode, @tileSize) ->
 		super
 		#@modelScale = 2.5
 		@position =
@@ -307,7 +307,7 @@ class SimulationCar extends Car
 
 		
 module.exports.TrafficSimulation = class TrafficSimulation
-	constructor: (playerPosition, @streetGraph, @simulationParameters, @scene, @globalOffset) ->
+	constructor: (playerPosition, @streetGraph, @simulationParameters, @world, @scene, @globalOffset) ->
 		@cars = []
 		@spawn playerPosition
 		@oldPlayerPostion = playerPosition
@@ -331,7 +331,7 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			nodes = @streetGraph.findNodes(playerPosition, @simulationParameters.spawnRadius)
 			from = @streetGraph.randomNode nodes
 			to = from.randomTo()
-			car = new SimulationCar(0, from, to, to.randomTo(from), @simulationParameters.tileSize)
+			car = new SimulationCar(@world, 0, from, to, to.randomTo(from), @simulationParameters.tileSize)
 			car.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 			@scene.add car.root
 			@cars.push car

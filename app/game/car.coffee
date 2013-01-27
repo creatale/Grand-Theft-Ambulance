@@ -1,12 +1,100 @@
-quadraticEaseOut = (k) -> -k*(k-2)
-cubicEaseOut = (k) -> --k * k * k + 1
-circularEaseOut = (k) -> Math.sqrt( 1 - --k * k )
-sinusoidalEaseOut = (k) -> Math.sin( k * Math.PI / 2 )
-exponentialEaseOut = (k) -> if k is 1 then 1 else -Math.pow(2,-10*k)+1
+math =
+	normaliseRadians: (radians) ->
+		radians=radians % (2*Math.PI)
+		if radians < 0
+				radians += 2 * Math.PI
+		return radians
+
+vectorMath =
+	rotate: (v, angle) ->
+		angle = math.normaliseRadians angle
+		return {
+			x: v.x * Math.cos(angle) - v.y * Math.sin(angle)
+			y: v.x * Math.sin(angle) + v.y * Math.cos(angle)
+		}
+
+b2Vec2 = Box2D.Common.Math.b2Vec2
+b2BodyDef = Box2D.Dynamics.b2BodyDef
+b2Body = Box2D.Dynamics.b2Body
+b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+b2Fixture = Box2D.Dynamics.b2Fixture
+# b2MassData = Box2D.Collision.Shapes.b2MassData
+b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+# b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+# b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+
+b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
+b2Joint = Box2D.Dynamics.Joints.b2Joint
+b2PrismaticJointDef = Box2D.Dynamics.Joints.b2PrismaticJointDef
+
+class Wheel
+	constructor: (@world, @car, @position, @width, @length, @revolving, @powered) ->
+		def = new b2BodyDef()
+		def.type = b2Body.b2_dynamicBody
+		def.position = @car.body.GetWorldPoint new b2Vec2 @position.x, @position.y
+		def.angle = @car.body.GetAngle()
+		@body = @world.CreateBody def
+
+		fixDef = new b2FixtureDef
+		fixDef.density = 1
+		fixDef.friction = 1
+		fixDef.restitution = 0.01
+		fixDef.isSensor = true
+		fixDef.shape = new b2PolygonShape()
+		fixDef.shape.SetAsBox @width/2, @length/2
+		@body.CreateFixture fixDef
+
+		jointDef = undefined
+		if @revolving
+			jointDef = new b2RevoluteJointDef()
+			jointDef.Initialize @car.body, @body, @body.GetWorldCenter()
+			jointDef.enableMotor = false
+		else
+			jointDef = new b2PrismaticJointDef()
+			jointDef.Initialize @car.body, @body, @body.GetWorldCenter(), new b2Vec2(1,0)
+			jointDef.enableLimit = true
+			jointDef.lowerTranslation = jointDef.upperTranslation = 0
+
+		@world.CreateJoint jointDef
+
+	addAngle: (angle) =>
+		@body.SetAngle(@car.body.GetAngle() + angle)
+
+	getLocalVelocity: () =>
+		@car.body.GetLocalVector(@car.body.GetLinearVelocityFromLocalPoint(new b2Vec2(@position.x, @position.y)))
+
+	getDirectionVector: () =>
+		# returns a world unit vector pointing in the direction this wheel is moving
+		angle = @body.GetAngle()
+		if @getLocalVelocity().y > 0
+			v =
+				x: 0
+				y: 1
+		else
+			v =
+				x: 0
+				y: -1
+
+		return vectorMath.rotate v, angle
+
+	getKillVelocityVector: () =>
+		# substracts sideways velocity from this wheel's velocity vector and returns the remaining front-facing velocity vector
+		velocity = @body.GetLinearVelocity()
+		sidewaysAxis = @getDirectionVector()
+		dotprod = velocity.x*sidewaysAxis.x + velocity.y*sidewaysAxis.y
+
+		return {
+			x:sidewaysAxis.x*dotprod
+			y:sidewaysAxis.y*dotprod
+		}
+
+	killSidewaysVelocity: () =>
+		kv = @getKillVelocityVector()
+		@body.SetLinearVelocity( new b2Vec2(kv.x, kv.y))
 
 module.exports = class Car
 	# car geometry manual parameters
-	constructor: ->
+	constructor: (@world) ->
 		@modelScale = 1
 		@backWheelOffset = 2
 		@autoWheelGeometry = true
@@ -17,59 +105,16 @@ module.exports = class Car
 		#	- other wheels are mirrored against car root
 		#	- if necessary back wheels can be offset manually
 
-		@wheelOffset = new THREE.Vector3()
-
-		@wheelDiameter = 1
-
-		# car "feel" parameters
-
-		@MAX_SPEED = 2200
-		@MAX_REVERSE_SPEED = -1500
-
-		@MAX_WHEEL_ROTATION = 0.6
-
-		@FRONT_ACCELERATION = 1250
-		@BACK_ACCELERATION = 1500
-
-		@WHEEL_ANGULAR_ACCELERATION = 1.5
-
-		@FRONT_DECCELERATION = 750
-		@WHEEL_ANGULAR_DECCELERATION = 1.0
-
-		@STEERING_RADIUS_RATIO = 0.0033
-
-		@MAX_TILT_SIDES = 0.05
-		@MAX_TILT_FRONTBACK = 0.015
-
 		# internal control variables
-
-		@speed = 0
-		@acceleration = 0
-
-		@wheelOrientation = 0
-		@carOrientation = 0
-
 		# car rigging
 
 		@root = new THREE.Object3D()
 
-		@frontLeftWheelRoot = new THREE.Object3D()
-		@frontRightWheelRoot = new THREE.Object3D()
-
 		@bodyMesh = null
 
-		@frontLeftWheelMesh = null
-		@frontRightWheelMesh = null
-
-		@backLeftWheelMesh = null
-		@backRightWheelMesh = null
-
 		@bodyGeometry = null
-		@wheelGeometry = null
 
 		@bodyMaterials = null
-		@wheelMaterials = null
-
 		# internal helper variables
 
 		@loaded = false
@@ -80,7 +125,50 @@ module.exports = class Car
 
 		@texture = "textures/ambulance.png"
 
-		# API
+		#physics
+
+		@width = 1.28 
+		@length = 3.32
+		@position =
+			x: 0
+			y: 0
+		@angle = Math.PI
+		@power = 10
+		@maxSteerAngle = Math.PI / 3
+		@maxSpeed = 100
+
+		@wheelAngle = 0
+		def = new b2BodyDef()
+		def.type = b2Body.b2_dynamicBody
+		def.position = new b2Vec2 @position.x, @position.y
+		def.angle = @angle
+		def.linearDamping = 0.45
+		def.bullet = true
+		def.angularDamping = 0.6
+		@body = @world.CreateBody def
+
+		fixDef = new b2FixtureDef()
+		fixDef.density = 0.3
+		fixDef.friction = 5
+		fixDef.restitution = 0.1
+		fixDef.shape = new b2PolygonShape()
+		fixDef.shape.SetAsBox @width/2, @length/2
+		@body.CreateFixture fixDef
+
+
+		wheelWidth = 0.25
+		wheelLength = 0.36
+
+		@wheels = []
+
+		@wheels.push new Wheel @world, @, {x: -0.6 , y: -1}, wheelWidth, wheelLength, true, true
+
+		@wheels.push new Wheel @world, @, {x: 0.6, y: -1}, wheelWidth, wheelLength, true, true
+
+		@wheels.push new Wheel @world, @, {x: -0.6, y: 0.8}, wheelWidth, wheelLength, false, false
+
+		@wheels.push new Wheel @world, @, {x: 0.6, y: 0.8}, wheelWidth, wheelLength, false, false
+
 
 	enableShadows: (enable) =>
 		for mesh in @meshes
@@ -105,7 +193,6 @@ module.exports = class Car
 			new THREE.MeshLambertMaterial( { ambient: 0xbbbbbb, map: map, transparent: true, side: THREE.DoubleSide } ),
 			#new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1, side: THREE.DoubleSide } )
 		]
-		@wheelGeometry = new THREE.SphereGeometry 5, 5, 4
 		@createCar()
 		# loader = new THREE.JSONLoader()
 		# loader.load bodyURL, (geometry, materials) =>
@@ -123,36 +210,11 @@ module.exports = class Car
 		@bodyGeometry.faceVertexUvs[0][0][2].x = 1/5 * (spriteKeyX + 1)
 		@bodyGeometry.faceVertexUvs[0][0][3].x = 1/5 * (spriteKeyX + 1)
 		@bodyGeometry.uvsNeedUpdate = true
-		
-
-	# loadPartsBinary: (bodyURL, wheelURL) =>
-	# 	loader = new THREE.BinaryLoader()
-	# 	loader.load bodyURL, (geometry, materials) =>
-	# 		@createBody geometry, materials
-
-	# 	loader.load wheelURL, (geometry, materials) =>
-	# 		@createWheels geometry, materials
-
 
 	update: (delta, controls) =>
 
-	# speed and wheels based on controls
-
-		if controls.moveForward
-			@speed = THREE.Math.clamp(@speed + delta * @FRONT_ACCELERATION, @MAX_REVERSE_SPEED, @MAX_SPEED)
-			@acceleration = THREE.Math.clamp(@acceleration + delta, -1, 1)
-
-		if controls.moveBackward
-			@speed = THREE.Math.clamp(@speed - delta * @BACK_ACCELERATION, @MAX_REVERSE_SPEED, @MAX_SPEED)
-			@acceleration = THREE.Math.clamp(@acceleration - delta, -1, 1)
-
-		if controls.moveLeft
-			@wheelOrientation = THREE.Math.clamp(@wheelOrientation + delta * @WHEEL_ANGULAR_ACCELERATION, -@MAX_WHEEL_ROTATION, @MAX_WHEEL_ROTATION)
-		if controls.moveRight
-			@wheelOrientation = THREE.Math.clamp(@wheelOrientation - delta * @WHEEL_ANGULAR_ACCELERATION, -@MAX_WHEEL_ROTATION, @MAX_WHEEL_ROTATION)
-
 		# grab
-		if controls.grab and not @grabbing
+		if controls? and controls.grab and not @grabbing
 			@grabbing = true
 			document.getElementById('door1').play()
 			keyFrame = 0
@@ -167,62 +229,16 @@ module.exports = class Car
 					@grabbing = false
 					document.getElementById('door2').play()
 			animFunc()
-		# speed decay
 
-		unless controls.moveForward or controls.moveBackward
-			if @speed > 0
-				k = exponentialEaseOut(@speed / @MAX_SPEED)
-				@speed = THREE.Math.clamp(@speed - k * delta * @FRONT_DECCELERATION, 0, @MAX_SPEED)
-				@acceleration = THREE.Math.clamp(@acceleration - k * delta, 0, 1)
-			else
-				k = exponentialEaseOut(@speed / @MAX_REVERSE_SPEED)
-				@speed = THREE.Math.clamp(@speed + k * delta * @BACK_ACCELERATION, @MAX_REVERSE_SPEED, 0)
-				@acceleration = THREE.Math.clamp(@acceleration + k * delta, -1, 0)
-
-
-		# steering decay
-
-		unless controls.moveLeft or controls.moveRight
-			if @wheelOrientation > 0
-				@wheelOrientation = THREE.Math.clamp(@wheelOrientation - delta * @WHEEL_ANGULAR_DECCELERATION, 0, @MAX_WHEEL_ROTATION)
-			else
-				@wheelOrientation = THREE.Math.clamp(@wheelOrientation + delta * @WHEEL_ANGULAR_DECCELERATION, -@MAX_WHEEL_ROTATION, 0)
-
-		# car update
-
-		forwardDelta = @speed * delta
-		@carOrientation += (forwardDelta * @STEERING_RADIUS_RATIO) * @wheelOrientation
-
-		# displacement
-
-		@root.position.x += Math.sin(@carOrientation) * forwardDelta
-		@root.position.z += Math.cos(@carOrientation) * forwardDelta
-
-		# steering
-
-		@root.rotation.y = @carOrientation
-
-		# tilt
-
-		if @loaded
-			@bodyMesh.rotation.z = @MAX_TILT_SIDES * @wheelOrientation * (@speed / @MAX_SPEED)
-			@bodyMesh.rotation.x = -@MAX_TILT_FRONTBACK * @acceleration
-
-		# wheels rolling
-
-		angularSpeedRatio = 1 / (@modelScale * (@wheelDiameter / 2))
-		wheelDelta = forwardDelta * angularSpeedRatio
-		if @loaded
-			@frontLeftWheelMesh.rotation.x += wheelDelta
-			@frontRightWheelMesh.rotation.x += wheelDelta
-			@backLeftWheelMesh.rotation.x += wheelDelta
-			@backRightWheelMesh.rotation.x += wheelDelta
-
-		# front wheels steering
-
-		@frontLeftWheelRoot.rotation.y = @wheelOrientation
-		@frontRightWheelRoot.rotation.y = @wheelOrientation
-
+		# translate physics representation to renderer
+		offset =
+			x: 0
+			y: 100
+		posOffset = vectorMath.rotate offset, @body.GetAngle()
+		pos = @body.GetPosition()
+		@root.position.x = pos.x * 100 + posOffset.x
+		@root.position.z = pos.y * 100 + posOffset.y
+		@root.rotation.y =-1*(@body.GetAngle() + Math.PI)
 
 	# internal helper methods
 	createBody: (geometry, materials) =>
@@ -230,28 +246,13 @@ module.exports = class Car
 		@bodyMaterials = materials
 		@createCar()
 
-	# createWheels: (geometry, materials) =>
-	# 	@wheelGeometry = geometry
-	# 	@wheelMaterials = materials
-	# 	@createCar()
-
 	createCar: =>
-		if @bodyGeometry and @wheelGeometry
-			
-			# compute wheel geometry parameters
-			if @autoWheelGeometry
-				@wheelGeometry.computeBoundingBox()
-				bb = @wheelGeometry.boundingBox
-				@wheelOffset.addVectors bb.min, bb.max
-				@wheelOffset.multiplyScalar 0.5
-				@wheelDiameter = bb.max.y - bb.min.y
-				THREE.GeometryUtils.center @wheelGeometry
+		if @bodyGeometry
 			
 			# rig the car
 			s = @modelScale
 			delta = new THREE.Vector3()
 			bodyFaceMaterial = new THREE.MeshFaceMaterial(@bodyMaterials)
-			wheelFaceMaterial = new THREE.MeshFaceMaterial(@wheelMaterials)
 			
 			# body
 			@bodyMesh = new THREE.Mesh @bodyGeometry, bodyFaceMaterial
@@ -260,43 +261,88 @@ module.exports = class Car
 			# Help against z fighting
 			@root.position.y = Math.random() * 10
 			
-			# front left wheel
-			delta.multiplyVectors @wheelOffset, new THREE.Vector3(s, s, s)
-			@frontLeftWheelRoot.position.add delta
-			@frontLeftWheelMesh = new THREE.Mesh @wheelGeometry #, wheelFaceMaterial)
-			@frontLeftWheelMesh.scale.set s, s, s
-			@frontLeftWheelRoot.add @frontLeftWheelMesh
-			@root.add @frontLeftWheelRoot
-			
-			# front right wheel
-			delta.multiplyVectors @wheelOffset, new THREE.Vector3(-s, s, s)
-			@frontRightWheelRoot.position.add delta
-			@frontRightWheelMesh = new THREE.Mesh @wheelGeometry #, wheelFaceMaterial)
-			@frontRightWheelMesh.scale.set s, s, s
-			@frontRightWheelMesh.rotation.z = Math.PI
-			@frontRightWheelRoot.add @frontRightWheelMesh
-			@root.add @frontRightWheelRoot
-			
-			# back left wheel
-			delta.multiplyVectors @wheelOffset, new THREE.Vector3(s, s, -s)
-			delta.z -= @backWheelOffset
-			@backLeftWheelMesh = new THREE.Mesh @wheelGeometry #, wheelFaceMaterial)
-			@backLeftWheelMesh.position.add delta
-			@backLeftWheelMesh.scale.set s, s, s
-			@root.add @backLeftWheelMesh
-			
-			# back right wheel
-			delta.multiplyVectors @wheelOffset, new THREE.Vector3(-s, s, -s)
-			delta.z -= @backWheelOffset
-			@backRightWheelMesh = new THREE.Mesh @wheelGeometry #, wheelFaceMaterial)
-			@backRightWheelMesh.position.add delta
-			@backRightWheelMesh.scale.set s, s, s
-			@backRightWheelMesh.rotation.z = Math.PI
-			@root.add @backRightWheelMesh
-			
 			# cache meshes
-			@meshes = [@bodyMesh, @frontLeftWheelMesh, @frontRightWheelMesh, @backLeftWheelMesh, @backRightWheelMesh]
+			@meshes = [@bodyMesh]
 			
 			# callback
 			@loaded = true
 			@callback if @callback
+
+	getPoweredWheels: () =>
+		ret = []
+		for wheel in @wheels
+			ret.push wheel if wheel.powered
+		return ret
+
+	getLocalVelocity: () =>
+		res = @body.GetLocalVector(@body.GetLinearVelocityFromLocalPoint(new b2Vec2(0, 0)))
+
+	getRevolvingWheels: () =>
+		ret = []
+		for wheel in @wheels
+			if wheel.revolving
+				ret.push wheel
+		return ret
+
+	getSpeedKMH: () =>
+		velocity = @body.GetLinearVelocity()
+		return velocity.Length()/1000*3600
+
+	setSpeed: (speed) =>
+		velocity = @body.GetLinearVelocity()
+		len = velocity.Length()
+		velocity = new b2Vec2 (velocity.x/len)*speed*1000/36000, (velocity.y/len)*speed*1000/36000
+		@body.SetLinearVelocity velocity
+
+	updatePhysics: (delta, controls) =>
+		for wheel in @wheels
+			wheel.killSidewaysVelocity()
+
+		incr = @maxSteerAngle/3*delta
+
+		if controls.moveLeft
+			@wheelAngle = THREE.Math.clamp @wheelAngle-incr, -@maxSteerAngle, 0
+		else if controls.moveRight
+			@wheelAngle = THREE.Math.clamp @wheelAngle+incr, 0, @maxSteerAngle
+		else
+			@wheelAngle = 0
+
+		wheels = @getRevolvingWheels()
+		for wheel in wheels
+			wheel.addAngle @wheelAngle
+
+		# console.log @getSpeedKMH(), @maxSpeed
+		if controls.moveForward and @getSpeedKMH() < @maxSpeed
+			baseVect =
+				x: 0
+				y: -1
+		else if controls.moveBackward
+			if @getLocalVelocity().y < 0
+				baseVect =
+					x: 0
+					y: 1.3
+			else
+				baseVect =
+					x: 0
+					y: 0.7
+		else
+			# if @getLocalVelocity().y < 0
+			# 	baseVect =
+			# 		x: 0
+			# 		y: 0.5
+			# else
+			baseVect =
+				x: 0
+				y: 0
+
+		fvect = 
+			x: @power*baseVect.x
+			y: @power*baseVect.y
+
+		wheels = @getPoweredWheels()
+		for wheel in wheels
+			position = wheel.body.GetWorldCenter()
+			wheel.body.ApplyForce(wheel.body.GetWorldVector(new b2Vec2(fvect.x, fvect.y)), position)
+
+		# if @getSpeedKMH() < 4 and not (controls.moveForward or controls.moveBackward)
+		# 	@setSpeed 0

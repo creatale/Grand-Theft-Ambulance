@@ -1,8 +1,11 @@
 Car = require './car'
 
 module.exports = class PoliceCar extends Car
-	constructor: (@playerCar, @map) ->
+	constructor: (@world, @playerCar, @map) ->
 		super
+		@position =
+			x: 5
+			y: 5
 		@lastForward = 0
 		@texture = "textures/police.png"
 
@@ -26,12 +29,13 @@ module.exports = class PoliceCar extends Car
 		idx = (posY * @map.width + posX) * 4
 		return (@map.data[idx] << 8) + @map.data[idx + 1]
 
-	update: (delta) =>
+	kiUpdate: (delta) =>
 		# Get direction vector towards player.
+		angle = @body.GetAngle() + Math.PI
 		direction = @playerCar.root.position.clone().sub(@root.position).normalize()
 		relativeDirection =
-			x: direction.x * Math.cos(@carOrientation) - direction.z * Math.sin(@carOrientation)
-			y: direction.x * Math.sin(@carOrientation) + direction.z * Math.cos(@carOrientation)
+			x: direction.x * Math.cos(angle) - direction.z * Math.sin(angle)
+			y: direction.x * Math.sin(angle) + direction.z * Math.cos(angle)
 
 		# Sophisticated decision chain.
 		steerLeft = relativeDirection.x > 0.03 or relativeDirection.y < -0.03
@@ -40,10 +44,10 @@ module.exports = class PoliceCar extends Car
 		steerHard = relativeDirection.y < 0 or Math.abs(relativeDirection.x) > 0.15
 
 		# WATCH OUT THE WALL... skreeech
-		tileAhead = @lookAhead(@carOrientation)
+		tileAhead = @lookAhead angle
 		if tileAhead in [0x8080, 0xffff]
-			tileLeft = @lookAhead(@carOrientation + Math.PI / 3)
-			tileRight = @lookAhead(@carOrientation - Math.PI / 3)
+			tileLeft = @lookAhead(angle + Math.PI / 3)
+			tileRight = @lookAhead(angle - Math.PI / 3)
 			steerHard = true
 			if tileRight not in [0x8080, 0xffff]
 				steerRight = true
@@ -57,8 +61,7 @@ module.exports = class PoliceCar extends Car
 
 		@lastForward = (@lastForward + 1) % 4
 
-		controls =
+		@controls =
 			moveLeft: steerLeft and (@lastForward is 0 or steerHard)
 			moveRight: steerRight and (@lastForward is 0 or steerHard)
 			moveForward: (@lastForward is 0) or driveFast
-		super(delta, controls)

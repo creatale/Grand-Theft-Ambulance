@@ -7,6 +7,7 @@ playerCar = undefined
 traffic = undefined
 policeCar = undefined
 scene = undefined
+world = undefined
 renderer = undefined
 mesh = undefined
 mat = undefined
@@ -30,14 +31,36 @@ VictimHint = require 'game/victimhint'
 
 updateHints = null
 
+b2Vec2 = Box2D.Common.Math.b2Vec2
+b2BodyDef = Box2D.Dynamics.b2BodyDef
+b2Body = Box2D.Dynamics.b2Body
+b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+b2Fixture = Box2D.Dynamics.b2Fixture
+b2World = Box2D.Dynamics.b2World
+# b2MassData = Box2D.Collision.Shapes.b2MassData
+b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+# b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+
 init = ->
 	container = document.getElementById("container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 2500)
 	camera.position.y = 2000
 	scene = new THREE.Scene()
 	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
-	
-	playerCar = new Car()
+		
+	world = new b2World new b2Vec2(0,0), true
+	# debugDraw = new b2DebugDraw()
+	# ctx = document.getElementById("debug").getContext("2d")
+	# debugDraw.SetSprite ctx
+	# debugDraw.SetDrawScale(30)
+	# ctx.translate worldHalfWidth*10 , worldHalfDepth*10
+	# debugDraw.SetFillAlpha(0.5)
+	# debugDraw.SetLineThickness(1.0)
+	# debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit)
+	# world.SetDebugDraw(debugDraw)
+	playerCar = new Car world
+
 
 	playerCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 
@@ -52,7 +75,7 @@ init = ->
 	camera.rotation.z = Math.PI
 	controls = new Controls()
 
-	policeCar = new PoliceCar(playerCar, map)
+	policeCar = new PoliceCar(world, playerCar, map)
 	policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 	scene.add policeCar.root
 
@@ -68,6 +91,16 @@ init = ->
 	dummy = new THREE.Mesh()
 	z = 0
 	index = 0
+
+	# tile physics
+	bodyDef = new b2BodyDef()
+	bodyDef.type = b2Body.b2_staticBody
+	fixDef = new b2FixtureDef()
+	fixDef.density = 1.0
+	fixDef.friction = 0.05
+	fixDef.restitution = 0.0
+	fixDef.shape = new b2PolygonShape()
+	fixDef.shape.SetAsBox 2.5, 2.5
 
 	isStreet = (x, y) ->
 		return false unless x >= 0 and y >= 0 and x < map.width and y < map.height
@@ -104,6 +137,11 @@ init = ->
 				#dummy.geometry = pxGeometry
 				THREE.GeometryUtils.merge geometry, dummy
 
+				# physics
+				if tile in [0x8080, 0x7f7f, 0xffff, 0xfffe, 0x0000]
+					bodyDef.position.x = x * 5 - worldHalfWidth * 5
+					bodyDef.position.y = z * 5 - worldHalfDepth * 5
+					world.CreateBody(bodyDef).CreateFixture(fixDef)
 
 			x++
 		z++
@@ -210,7 +248,7 @@ placeVictim = () ->
 	updateHints = ->
 		victimHint.update victim, playerCar
 	
-	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), scene, {x: map.width * 250, y: map.height * 250})
+	# traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), world, scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
 	$(window).resize ->
@@ -278,10 +316,28 @@ animate = ->
 	requestAnimationFrame animate
 	render()
 	stats.update()
+
+physicsLoop = ->
+	fps = 60
+	timeStep = 1.0/fps
+	
+	playerCar.updatePhysics timeStep, controls
+	policeCar.updatePhysics timeStep, policeCar.controls
+	world.Step timeStep, 6, 2
+	world.ClearForces()
+
+	setTimeout(physicsLoop, 1000/fps)
+	# canvas = document.getElementById("debug")
+	# canvas.width = canvas.width;
+	# ctx = canvas.getContext('2d')
+	# ctx.translate worldHalfWidth*10 , worldHalfDepth*10
+	# world.DrawDebugData()
+
 render = ->
 	deltaT = clock.getDelta()
 	playerCar.update deltaT, controls
 	policeCar.update deltaT
+	policeCar.kiUpdate deltaT
 	raceSince += deltaT
 	if policeCar.root.position.clone().sub(playerCar.root.position).length() < 2000
 		raceSince = 0 unless 0 < raceSince < 2
@@ -309,7 +365,7 @@ render = ->
 		cash += cargoCount * 10000
 		cargoCount = 0
 
-	traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
+	# traffic.step deltaT, {x: playerCar.root.position.x, y: playerCar.root.position.z}
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
 	camera.lookAt playerCar.root.position
@@ -331,6 +387,7 @@ loadImage 'maps/test2.png', (imageData) ->
 	worldHalfDepth = worldDepth / 2
 	init()
 	animate()
+	physicsLoop()
 	document.getElementById('bg0').pause()
 	document.getElementById('bg1').play()
 
