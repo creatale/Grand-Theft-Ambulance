@@ -125,6 +125,7 @@ module.exports = class Car
 
 		, options
 		
+		console.log @options
 		@modelScale = 1
 
 		@power = @options.power
@@ -308,12 +309,12 @@ module.exports = class Car
 		for wheel in @wheels
 			wheel.killSidewaysVelocity()
 
-		incr = @maxSteerAngle*delta
+		incr = @options.maxSteerAngle*delta
 
 		if controls.moveLeft
-			@wheelAngle = THREE.Math.clamp @wheelAngle-incr, -@maxSteerAngle, 0
+			@wheelAngle = THREE.Math.clamp @wheelAngle-incr, -@options.maxSteerAngle, 0
 		else if controls.moveRight
-			@wheelAngle = THREE.Math.clamp @wheelAngle+incr, 0, @maxSteerAngle
+			@wheelAngle = THREE.Math.clamp @wheelAngle+incr, 0, @options.maxSteerAngle
 		else
 			@wheelAngle = 0
 
@@ -323,7 +324,7 @@ module.exports = class Car
 
 		# console.log @getSpeedKMH(), @maxSpeed
 		localVelocity = @getLocalVelocity()
-		if controls.moveForward and @getSpeedKMH() < @maxSpeed
+		if controls.moveForward and @getSpeedKMH() < @options.maxSpeed
 			baseVect =
 				x: 0
 				y: -1
