@@ -18,8 +18,11 @@ Controls = require 'game/controls'
 Car = require 'game/car'
 PoliceCar = require 'game/policecar'
 Victim = require 'game/victim'
+VictimHint = require 'game/victimhint'
 {tiles, palette} = require './palette'
 {StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
+
+updateHints = null
 
 init = ->
 	container = document.getElementById("container")
@@ -179,7 +182,14 @@ init = ->
 	scene.add victim.root
 	victim.root.position.x = (randomNode.y - worldHalfDepth) * 500
 	victim.root.position.z = (randomNode.x - worldHalfWidth) * 500
-
+	
+	victimHint = new VictimHint()
+	victimHint.loadParts()
+	scene.add victimHint.root
+	
+	updateHints = ->
+		victimHint.update victim, playerCar
+	
 	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 20, 500, 50), scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
@@ -255,7 +265,7 @@ render = ->
 	camera.position.x = playerCar.root.position.x
 	camera.position.z = playerCar.root.position.z
 	camera.lookAt playerCar.root.position
-
+	updateHints()
 	renderer.render scene, camera
 unless Detector.webgl
 	Detector.addGetWebGLMessage()
