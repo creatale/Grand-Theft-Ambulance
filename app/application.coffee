@@ -13,11 +13,11 @@ Application =
 				$(window).keypress =>
 					$(window).unbind('keypress')
 					$('#loading').remove()
-					@demo = require 'game/demo'
+					@game = require 'game/game'
 				$('#startbutton').click =>
 					$(window).unbind('keypress')
 					$('#loading').remove()
-					@demo = require 'game/demo'
+					@game = require 'game/game'
 
 		# Freeze the object
 		Object.freeze? Application
