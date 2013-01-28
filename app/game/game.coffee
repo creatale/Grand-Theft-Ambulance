@@ -20,6 +20,7 @@ parkingPlace = undefined
 graph = undefined
 nextPoliceSpawn = undefined
 cash = 0
+policeCount = 0
 worldWidth = 32
 worldDepth = 32
 worldHalfWidth = worldWidth / 2
@@ -72,7 +73,7 @@ init = ->
 		if playerCar.root.position.clone().sub(carDirection).sub(victim.root.position).length() < 500 and cargoCount < 4
 			placeVictim()
 			cargoCount++
-			policeCount++
+			policeCount = Math.min(policeCount + 1, 9)
 			document.getElementById('grab').play()
 
 	scene.add playerCar.root
@@ -328,7 +329,6 @@ setInterval(->
 , 500)
 
 # police ui
-policeCount = 0
 setInterval(->
 	policeFrame = $("#police-frame")
 	return if policeFrame.children().length is policeCount
@@ -425,11 +425,11 @@ render = ->
 	if parkingPlace.clone().sub(playerCar.root.position).length() < 300
 		if cargoCount > 0
 			document.getElementById('kaching').play()
+			policeCount = Math.max(policeCount - 1, 0)
 		cash += cargoCount * 10000
 		if butcherHint?
 			scene.remove butcherHint.root
 		cargoCount = 0
-		policeCount = Math.max(policeCount - 1, 0)
 
 	b2Transform = require
 
@@ -475,7 +475,7 @@ unless Detector.webgl
 loadImage = require 'game/loadimage'
 
 map = undefined
-loadImage 'maps/64map.png', (imageData) ->
+loadImage 'maps/80map.png', (imageData) ->
 	console.log 'loaded', imageData
 	map = imageData
 	worldWidth = map.width
