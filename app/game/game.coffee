@@ -395,7 +395,10 @@ render = ->
 		if not busted
 			gameDiv = $('#game')
 			for i in [0..10]
-				gameDiv.append "<div class='busted-line' style='-webkit-transform-origin:#{i*15}em 0em; -webkit-animation: busted 0.5s #{i*0.01}s linear forwards'></div>"
+				gameDiv.append """<div class='busted-line' style='
+				-webkit-transform-origin:#{i*15}em 0em; transform-origin:#{i*15}em 0em;
+				-webkit-animation: busted 0.5s #{i*0.01}s linear forwards; animation: busted 0.5s #{i*0.01}s  linear forwards;
+				'></div>"""
 			gameDiv.append "<p id='busted-text'>BUSTED!</p>"
 			busted = true
 			document.getElementById('jail').play()
