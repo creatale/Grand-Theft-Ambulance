@@ -21,6 +21,7 @@
 	text-shadow: 2px 2px 0px #333
 	font-size: 36px
 	background: -webkit-linear-gradient(69deg, #1b1917 0%, #a60a0a 60%)
+	background: linear-gradient(21deg, #1b1917 0%, #a60a0a 60%)
 	
 #loading img#splash
 	float: left
@@ -119,7 +120,7 @@
 	height 120px
 	// -webkit-transform-origin 0% 0%
 	-webkit-transform rotate(85deg)
-
+	transform rotate(85deg)
 
 #busted-text
 	font-family: 'Pricedown'
@@ -132,7 +133,7 @@
 	text-align: center
 	font-size: 20em
 	-webkit-animation: busted-text 1s 0.3s linear forwards
-
+	animation: busted-text 1s 0.3s linear forwards
 
 @keyframes busted {
 	from {
@@ -145,12 +146,12 @@
 }
 
 @keyframes busted-text {
-	0%   { top: 0em; -webkit-animation-timing-function:ease-in;  }
-	37%  { top:500px; -webkit-animation-timing-function:ease-out; }
-	55%  { top:375px; -webkit-animation-timing-function:ease-in;  }
-	73%  { top:500px; -webkit-animation-timing-function:ease-out; }
-	82%  { top:465px; -webkit-animation-timing-function:ease-in;  }
-	91%  { top:500px; -webkit-animation-timing-function:ease-out; }
-	96%  { top:490px; -webkit-animation-timing-function:ease-in;  }
+	0%   { top: 0em; -webkit-animation-timing-function:ease-in; animation-timing-function:ease-in;  }
+	37%  { top:500px; -webkit-animation-timing-function:ease-out; animation-timing-function:ease-in; }
+	55%  { top:375px; -webkit-animation-timing-function:ease-in; animation-timing-function:ease-in;  }
+	73%  { top:500px; -webkit-animation-timing-function:ease-out; animation-timing-function:ease-in; }
+	82%  { top:465px; -webkit-animation-timing-function:ease-in; animation-timing-function:ease-in;  }
+	91%  { top:500px; -webkit-animation-timing-function:ease-out; animation-timing-function:ease-in; }
+	96%  { top:490px; -webkit-animation-timing-function:ease-in; animation-timing-function:ease-in; }
 	100% { top:500px; }
 }
