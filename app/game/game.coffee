@@ -228,7 +228,7 @@ init = ->
 	container.appendChild stats.domElement
 
 	graph = StreetGraph.fromMapData(map)
-	console.log graph
+	#console.log graph
 
 	placeVictim()
 	
@@ -249,7 +249,7 @@ placeVictim = () ->
 		scene.remove butcherHint.root
 
 	randomNode = graph.randomNode([])
-	console.log randomNode
+	#console.log randomNode
 	victim = new Victim()
 	victim.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 	scene.add victim.root
@@ -425,7 +425,7 @@ render = ->
 		document.getElementById('bg1').volume = 0.9
 		raceSince = undefined
 
-	if parkingPlace.clone().sub(playerCar.root.position).length() < 300
+	if parkingPlace? and parkingPlace.clone().sub(playerCar.root.position).length() < 300
 		if cargoCount > 0
 			document.getElementById('kaching').play()
 			policeCount = Math.max(policeCount - 1, 0)
@@ -443,7 +443,7 @@ render = ->
 				#root: playerCar.root.position.clone()
 				x: playerCar.body.GetPosition().x
 				y: playerCar.body.GetPosition().y
-		console.log nextPoliceSpawn
+		#console.log nextPoliceSpawn
 	else if nextPoliceSpawn? and clock.getElapsedTime() > nextPoliceSpawn.time
 		policeCar = new PoliceCar(world, playerCar, map, nextPoliceSpawn.position)
 		policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'

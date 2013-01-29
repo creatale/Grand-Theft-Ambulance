@@ -125,7 +125,7 @@ module.exports = class Car
 
 		, options
 		
-		console.log @options
+		#console.log @options
 		@modelScale = 1
 
 		@power = @options.power
