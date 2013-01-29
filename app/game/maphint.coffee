@@ -6,7 +6,7 @@ module.exports = class MapHint
 
 	loadParts: (textureUrl) =>
 		texture = THREE.ImageUtils.loadTexture textureUrl
-		material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false, color: 0xffffff } )
+		material = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false, color: 0xffffff, depthTest: false } )
 		@root = new THREE.Sprite material
 		
 		#material.uvScale.set( 2, 2 )
