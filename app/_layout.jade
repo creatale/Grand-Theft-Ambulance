@@ -13,6 +13,9 @@ html(lang='en')
 			script
 				window.attachEvent('onload', function() {
 					CFInstall.check({ mode: "overlay" });
+					if (navigator.userAgent.indexOf("WOW64") != -1 || navigator.userAgent.indexOf("Win64") != -1 ){
+						alert("Google Chrome Frame is limited to 32 bit and you're currently running Internet Explorer 64 bit. \n\nPlease switch to Internet Explorer 32 bit!");
+					}
 				});
 		script(src='js/vendor.js')
 		script(src='js/templates.js')
