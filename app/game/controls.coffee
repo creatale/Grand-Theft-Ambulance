@@ -10,7 +10,7 @@ module.exports = class Controls
 		@moveLeft = false
 		@moveRight = false
 		@grab = false
-		@domElement.setAttribute "tabindex", -1  if @domElement isnt document
+		@domElement.setAttribute "tabindex", -1	if @domElement isnt document
 
 		@domElement.addEventListener "contextmenu", (event) ->
 			event.preventDefault()
@@ -20,6 +20,16 @@ module.exports = class Controls
 		, false
 		@domElement.addEventListener "keyup", () =>
 			@onKeyUp.apply @, arguments
+		, false
+		@domElement.addEventListener "touchstart", () =>
+			@onTouchStart.apply @, arguments
+		, false
+		@domElement.addEventListener "touchmove", () =>
+			@onTouchMove.apply @, arguments
+		@domElement.addEventListener "touchend", () =>
+			@onTouchEnd.apply @, arguments
+		@domElement.addEventListener "touchcancel", () =>
+			@onTouchEnd.apply @, arguments
 		, false
 		@handleResize()
 
@@ -56,4 +66,17 @@ module.exports = class Controls
 				@moveBackward = false
 			when 32
 				@grab = false
-			
+	
+	onTouchStart: (event) =>
+		#TODO: do something useful here...
+		@moveForward = true
+		console.log "touch start", event
+
+	onTouchMove: (event) =>
+		#TODO: do something useful here...
+		console.log "touch move", event
+		
+	onTouchEnd: (event) =>
+		#TODO: do something useful here...
+		@moveForward = false
+		console.log "touch end", event
