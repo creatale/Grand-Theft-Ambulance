@@ -461,6 +461,7 @@ render = ->
 			if policeCar.root.position.clone().sub(playerCar.root.position).length() > 10000
 				console.log 'Removing remote police car'
 				scene.remove policeCar.root
+				world.DestroyBody policeCar.body
 				policeCars.splice(idx, 1)
 
 
@@ -485,7 +486,12 @@ loadImage 'maps/80map.png', (imageData) ->
 	worldDepth = map.height
 	worldHalfWidth = worldWidth / 2
 	worldHalfDepth = worldDepth / 2
-	init()
+	try
+    	init()
+    catch error
+        alert("Sorry, WebGL failed to initialize on your device.")
+        console.log(error)
+        return
 	animate()
 	physicsLoop()
 	document.getElementById('bg0').pause()
