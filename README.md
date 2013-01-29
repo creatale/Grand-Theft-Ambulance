@@ -29,4 +29,4 @@ This is harder because Chrome suppresses local XHR requests (thefuq?). You have 
 
 # License
 
-This game is Creative Commons BY-NC-SA licensed (see licsense.txt).
+This game is Creative Commons BY-NC-SA licensed (see LICENSE.txt).

@@ -3,3 +3,4 @@ release/
 *~
 .idea
 *.log
+*.sublime-workspace

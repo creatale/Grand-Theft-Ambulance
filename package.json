@@ -7,7 +7,8 @@
 		"Christian Dittrich",
 		"Sebastian Gepperth",
 		"Wolfgang Fellger",
-		"Patrick Wachowiak"
+		"Patrick Wachowiak",
+		"Roland Linke"
 	],
     "dependencies": {
 		"javascript-brunch": ">= 1.0 < 1.5",
