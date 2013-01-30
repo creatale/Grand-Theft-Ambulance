@@ -232,7 +232,7 @@ init = ->
 
 	placeVictim()
 	
-	traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
+	#traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
 	
 	#
 	$(window).resize ->
@@ -345,16 +345,17 @@ animate = ->
 
 physicsLoop = ->
 	fps = 60
-	timeStep = 1.0/fps
+	timeStep = 0.9/fps  # compensate because physics were calibrated wrongly
+	window.setTimeout(physicsLoop, 1000/fps)
 	
 	playerCar.updatePhysics timeStep, controls
-	traffic.updatePhysics timeStep
+	#traffic.updatePhysics timeStep
 	for policeCar in policeCars
 		policeCar.updatePhysics timeStep, policeCar.controls
 	world.Step timeStep, 6, 2
 	world.ClearForces()
 
-	setTimeout(physicsLoop, 1000/fps)
+	#setTimeout(physicsLoop, 1000/fps)
 	# canvas = document.getElementById("debug")
 	# canvas.width = canvas.width;
 	# ctx = canvas.getContext('2d')
@@ -369,8 +370,8 @@ render = ->
 	deltaT = clock.getDelta()
 	if not gameOver
 		playerCar.update deltaT, controls
-	traffic.step deltaT, {x: playerCar.body.GetPosition().x, y: playerCar.body.GetPosition().z}
-	traffic.update deltaT
+	#traffic.step deltaT, {x: playerCar.body.GetPosition().x, y: playerCar.body.GetPosition().z}
+	#traffic.update deltaT
 	blocked = false
 	for policeCar in policeCars
 		policeCar.update deltaT
