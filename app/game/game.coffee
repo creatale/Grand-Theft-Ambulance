@@ -214,7 +214,9 @@ init = ->
 	directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
 	directionalLight.position.set(1, 1, 0.5).normalize()
 	scene.add directionalLight
-	renderer = new THREE.WebGLRenderer(clearColor: 0xffffff)
+	renderer = new THREE.WebGLRenderer(
+		clearColor: 0xffffff
+		precision: "lowp")
 	renderer.setDepthTest(false)
 	renderer.setSize $(container).width(), $(container).height()
 	container.appendChild renderer.domElement

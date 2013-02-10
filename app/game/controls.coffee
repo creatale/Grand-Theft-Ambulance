@@ -69,6 +69,7 @@ module.exports = class Controls
 	
 	onTouchStart: (event) =>
 		#TODO: do something useful here...
+		event.preventDefault()
 		@moveForward = true
 		console.log "touch start", event
 
