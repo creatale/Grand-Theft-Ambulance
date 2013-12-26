@@ -1,28 +1,15 @@
-!!! 5
+doctype html
 html(lang='en')
 	head
 		meta(charset='utf-8')
 		meta(name='viewport', content='width=device-width, initial-scale=1.0')
-		meta(http-equiv='X-UA-Compatible', content='chrome=1')
 		title Grand Theft Ambulance
 		link(rel='stylesheet', href='css/app.css')
-		//if IE
-			style
-				.chromeFrameOverlayCloseBar { display:none; }
-			script(src='http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js')
-			script
-				window.attachEvent('onload', function() {
-					CFInstall.check({ mode: "overlay" });
-					if (navigator.userAgent.indexOf("WOW64") != -1 || navigator.userAgent.indexOf("Win64") != -1 ){
-						alert("Google Chrome Frame is limited to 32 bit and you're currently running Internet Explorer 64 bit. \n\nPlease switch to Internet Explorer 32 bit!");
-					}
-				});
 		script(src='js/vendor.js')
-		script(src='js/templates.js')
 		script(src='js/app.js')
-		script
+		script.
 			require('application');
-		script
+		script.
 			function start() {
 				$('#loading').hide();
 				$('#game').show();

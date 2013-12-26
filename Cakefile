@@ -1,4 +1,4 @@
-{spawn, exec} = require 'child_process'
+{spawn} = require 'child_process'
 os = require 'os'
 
 cmd = (name) ->
@@ -6,14 +6,13 @@ cmd = (name) ->
 
 npm = cmd 'npm'
 coffee = cmd 'coffee'
-mocha = cmd 'mocha'
 brunch = cmd 'brunch'
 
-task 'install', 'Install node.js modules', ->
+task 'install', 'Install node.js packages', ->
 	spawn npm, ['install'], {cwd: '.', stdio: 'inherit'}
 
-#task 'test', 'Execute tests', ->
-#	spawn mocha, [], {cwd: '.', stdio: 'inherit'}
+task 'update', 'Update node.js packages', ->
+	spawn npm, ['update'], {cwd: '.', stdio: 'inherit'}
 	
 task 'run', 'Start the server', ->
 	brunch = spawn brunch, ['build'], {cwd: '.', stdio: 'inherit'}

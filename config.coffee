@@ -1,16 +1,18 @@
 #
 # Brunch configuration file. For documentation see:
-# 	http://brunch.readthedocs.org/en/latest/config.html
+# 	https://github.com/brunch/brunch/blob/stable/docs/config.md
 #
 exports.config =
 	paths:
-		vendor: 'app/vendor'
-		public: 'release/'
+		watched: [
+			'app'
+			'app/vendor'
+		]
 	files:
 		javascripts:
 			joinTo:
 				'js/app.js': /^app(\/|\\)(?!vendor)/
-				'js/vendor.js': /vendor/
+				'js/vendor.js': /vendor(\/|\\)/
 			order:
 				before: [
 					'app/vendor/js/jquery-1.8.2.js'
@@ -20,9 +22,17 @@ exports.config =
 					'app/vendor/js/three-r55.js'
 				]
 		stylesheets:
-			joinTo: 'css/app.css'
+			joinTo:
+				'css/app.css': /^(app|vendor)/
+			order:
+				before: [
+					'app/vendor/css/bootstrap.css'
+				]
 		templates:
-			joinTo: 'js/templates.js'
+			joinTo: 'js/app.js'
 	plugins:
 		static_jade:
 			extension: ".static.jade"
+	server:
+		port: 9000
+		
