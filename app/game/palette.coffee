@@ -5,7 +5,7 @@ makeFloor = (materialIndex, rotation = 0) ->
 	floor.applyMatrix(matrix.makeRotationZ( rotation * Math.PI / 2 ))
 	floor.applyMatrix(matrix.makeRotationX( -Math.PI / 2 ))
 	floor.applyMatrix(matrix.makeTranslation(0, -10, 0 ));
-	floor.faces[ 0 ].materialIndex = materialIndex
+	floor.faces[ 0 ].materialIndex = floor.faces[ 1 ].materialIndex = materialIndex
 	return floor
 
 makeBox = (materialIndex = 6) ->
@@ -13,26 +13,26 @@ makeBox = (materialIndex = 6) ->
 	geometry = new THREE.Geometry()
 
 	pxGeometry = new THREE.PlaneGeometry( 500, 500 );
-	pxGeometry.faces[ 0 ].materialIndex = materialIndex;
+	pxGeometry.faces[ 0 ].materialIndex = pxGeometry.faces[ 1 ].materialIndex = materialIndex;
 	pxGeometry.applyMatrix( matrix.makeRotationY( Math.PI / 2 ) );
 	pxGeometry.applyMatrix( matrix.makeTranslation( 250, 240, 0 ) );
 
 	nxGeometry = new THREE.PlaneGeometry( 500, 500 );
-	nxGeometry.faces[ 0 ].materialIndex = materialIndex;
+	nxGeometry.faces[ 0 ].materialIndex = nxGeometry.faces[ 1 ].materialIndex = materialIndex;
 	nxGeometry.applyMatrix( matrix.makeRotationY( - Math.PI / 2 ) );
 	nxGeometry.applyMatrix( matrix.makeTranslation( - 250, 240, 0 ) );
 
 	pyGeometry = new THREE.PlaneGeometry( 500, 500 );
-	pyGeometry.faces[ 0 ].materialIndex = 3;
+	pyGeometry.faces[ 0 ].materialIndex = pyGeometry.faces[ 1 ].materialIndex = 3;
 	pyGeometry.applyMatrix( matrix.makeRotationX( - Math.PI / 2 ) );
 	pyGeometry.applyMatrix( matrix.makeTranslation( 0, 490, 0 ) );
 
 	pzGeometry = new THREE.PlaneGeometry( 500, 500 );
-	pzGeometry.faces[ 0 ].materialIndex = materialIndex;
+	pzGeometry.faces[ 0 ].materialIndex = pzGeometry.faces[ 1 ].materialIndex = materialIndex;
 	pzGeometry.applyMatrix( matrix.makeTranslation( 0, 240, 250 ) );
 
 	nzGeometry = new THREE.PlaneGeometry( 500, 500 );
-	nzGeometry.faces[ 0 ].materialIndex = materialIndex;
+	nzGeometry.faces[ 0 ].materialIndex = nzGeometry.faces[ 1 ].materialIndex = materialIndex;
 	nzGeometry.applyMatrix( matrix.makeRotationY( Math.PI ) );
 	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 240, -250 ) );
 

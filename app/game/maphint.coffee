@@ -24,4 +24,4 @@ module.exports = class MapHint
 			@root.position.z = object.root.position.z + -objectDir.y * 250
 		
 		@root.position.y = (hintIndex++ % 2) * 15
-		@root.rotation = Math.atan2(objectDir.x, objectDir.y)
+		@root.material.rotation = Math.atan2(objectDir.x, objectDir.y)

@@ -213,16 +213,21 @@ module.exports = class Car
 		# 	@createBody geometry, materials
 
 	updateSprite: (index) =>
-		spriteKeyX = index % 5
-		spriteKeyY = 3 - ((index / 5) | 0)
-		@bodyGeometry.faceVertexUvs[0][0][1].y = 1/4 * spriteKeyY
-		@bodyGeometry.faceVertexUvs[0][0][2].y = 1/4 * spriteKeyY
-		@bodyGeometry.faceVertexUvs[0][0][0].y = 1/4 * (spriteKeyY + 1)
-		@bodyGeometry.faceVertexUvs[0][0][3].y = 1/4 * (spriteKeyY + 1)
-		@bodyGeometry.faceVertexUvs[0][0][0].x = 1/5 * spriteKeyX
-		@bodyGeometry.faceVertexUvs[0][0][1].x = 1/5 * spriteKeyX
-		@bodyGeometry.faceVertexUvs[0][0][2].x = 1/5 * (spriteKeyX + 1)
-		@bodyGeometry.faceVertexUvs[0][0][3].x = 1/5 * (spriteKeyX + 1)
+		framesX = 5
+		framesY = 4
+		keyX = index % framesX
+		keyY = (framesY - 1) - ((index / framesX) | 0)
+		scaleX = 1 / framesX
+		scaleY = 1 / framesY
+		# The quad [a, b, c, d] consists of two triangles [a, b, c] + [a, c, d] with reversed index access.
+		@bodyGeometry.faceVertexUvs[0][1][2].x = @bodyGeometry.faceVertexUvs[0][0][2].x = scaleX * (keyX + 1)
+		@bodyGeometry.faceVertexUvs[0][1][2].y = @bodyGeometry.faceVertexUvs[0][0][2].y = scaleY * (keyY + 1)
+		@bodyGeometry.faceVertexUvs[0][1][1].x = scaleX * (keyX + 1)
+		@bodyGeometry.faceVertexUvs[0][1][1].y = scaleY * keyY
+		@bodyGeometry.faceVertexUvs[0][1][0].x = @bodyGeometry.faceVertexUvs[0][0][1].x = scaleX * keyX
+		@bodyGeometry.faceVertexUvs[0][1][0].y = @bodyGeometry.faceVertexUvs[0][0][1].y = scaleY * keyY
+		@bodyGeometry.faceVertexUvs[0][0][0].x = scaleX * keyX
+		@bodyGeometry.faceVertexUvs[0][0][0].y = scaleY * (keyY + 1)
 		@bodyGeometry.uvsNeedUpdate = true
 
 	update: (delta, controls) =>
