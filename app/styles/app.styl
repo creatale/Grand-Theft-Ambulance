@@ -6,63 +6,53 @@
 		url('../fonts/pricedown_bl-webfont.svg') format('svg')
 	font-weight: normal
 	font-style: normal
-	
-#loading
-	z-index: 1002
-	position: absolute
-	bottom: 0
-	left: 0
-	width: 100%
-	height: 100%
-	background: url('../ui/splashscreen.png') #000000 no-repeat center
-	background-size: contain
-	font-family: 'Pricedown'
-	color: white
-	text-shadow: 2px 2px 0px #333
-	font-size: 36px
+
+html, body
+	height 100%
+	margin 0
+	padding 0
+
+body > div:first-child 
+	height 100%
+
+.container
+	width 100%
+	padding 0
+
+#home
+	display table
+	width 100%
+	height 100%
+	padding 0
+
+	background: #f00
 	background: -webkit-linear-gradient(69deg, #1b1917 0%, #a60a0a 60%)
 	background: linear-gradient(21deg, #1b1917 0%, #a60a0a 60%)
-	
-#loading img#splash
-	float: left
-	position: absolute
-	bottom: 0
-	left: 50px
-#loadingText
-	height: 100%
-	margin-left: 50%
-	width: 50%
-	text-align: center
-	align: center
-	line-height: 40px
-	
-#loadingText .inner
-	padding: 20px
 
-#loadingText h1
 	font-family: 'Pricedown'
-	font-weight: bold
-	font-size: 48px
-	
-#loadingText table
-	align: center
-	margin: auto
-	
-#loadingText p
-	margin-top: 40px
-	
-#loadingText td
-	text-align: center
-	padding-left: 20px
-	padding-right: 20px
-	
-#loadingText button
-	font-family: 'Pricedown'
-	font-size: 48px
-	height: 52px
+	font-size: 36px
 	color: white
 	text-shadow: 2px 2px 0px #333
-	
+	line-height: 40px
+
+	h1
+		font-family: 'Pricedown'
+		font-weight: bold
+		font-size: 48px
+	p
+		margin: 24px 0px
+
+	.start
+		font-size: 48px
+		height: 52px
+		color: white
+		text-shadow: 2px 2px 0px #333
+
+	.row
+		height 100%
+		display table-cell
+		vertical-align middle
+
 #game
 	position: absolute
 	bottom: 0
@@ -71,7 +61,7 @@
 	height: 100%
 	overflow: hidden
 	
-#container 
+#game-container 
 	position: absolute
 	bottom: 0
 	left: 0

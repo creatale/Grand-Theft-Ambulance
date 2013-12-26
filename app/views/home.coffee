@@ -8,7 +8,7 @@ module.exports = class HomeView extends Backbone.View
 		'click .start': 'start'
 
 	render: =>
-		@$el.html @template()
+		@$el.attr('id', @idName).html(@template())
 
 		if Modernizr.webgl
 			$('#startbutton').prop 'disabled', false

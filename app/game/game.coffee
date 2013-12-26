@@ -47,7 +47,7 @@ b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 
 init = ->
-	container = document.getElementById("container")
+	container = document.getElementById("game-container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 5000)
 	camera.position.y = 2000
 	scene = new THREE.Scene()

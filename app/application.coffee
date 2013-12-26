@@ -11,13 +11,13 @@ class Application
 	home: =>
 		view = new HomeView()
 		view.render()
-		$('#contentContainer').empty().append view.$el
+		$('.container').empty().append view.$el
 		view.on 'start', @stage
 
 	stage: =>
 		view = new StageView()
 		view.render()
-		$('#contentContainer').empty().append view.$el
+		$('.container').empty().append view.$el
 		
 $ ->
 	new Application()

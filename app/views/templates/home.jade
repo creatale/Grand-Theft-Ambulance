@@ -1,35 +1,35 @@
-#loading
-	img#splash(src='ui/splashscreen_solo.png')
-	#loadingText
-		.inner
-			h1 Welcome to Liverty City, stranger!
-			p
-				| Here is where the fun dies on the streets.
-			p
-				| Be quick to gather up the remains of road casualties before the officials can and cash their organs in at the black market butcher.
-			p
-				table
-					tr
-						td
-							img(src="ui/key_up.png", alt="Up-Key")
-						td Accelerate
-					tr
-						td
-							img(src="ui/key_down.png", alt="Down-Key")
-						td Brake
-					tr
-						td
-							img(src="ui/key_left.png", alt="Left-Key")
-							img(src="ui/key_right.png", alt="Right-Key")
-						td Steer
-					tr
-						td
-							img(src="ui/key_space.png", alt="Space-Key")
-						td Use body grabber
-			p Press this &rarr; 
-				button.start Button
-				| 
-				| or press any key to begin.
+.row
+	.col-md-6
+		img.img-responsive(src='ui/splashscreen_solo.png')
+	.col-md-6.text-center
+		h1 Welcome to Liverty City, stranger!
+		p
+			| Here is where the fun dies on the streets.
+		p
+			| Be quick to gather up the remains of road casualties before the officials can and cash their organs in at the black market butcher.
+		dl.dl-horizontal
+			dt
+				img(src="ui/key_up.png", alt="Up-Key")
+				img(src="ui/key_down.png", alt="Down-Key")
+			dd.
+				Gas and Brake
+			dt
+				img(src="ui/key_left.png", alt="Left-Key")
+				img(src="ui/key_right.png", alt="Right-Key")
+			dd.
+				Steer
+			dt
+				img(src="ui/key_space.png", alt="Space-Key")
+			dd.
+				Use body grabber
+		p
+			| Press any key or this
+			br
+			| &rarr; 
+			button.start Button
+			|  &larr;
+			br
+			| to begin.
 #sounds
 	audio#bg0(preload='auto', autoplay, loop)
 		source(type='audio/ogg',  src='sound/bg0.ogg')
