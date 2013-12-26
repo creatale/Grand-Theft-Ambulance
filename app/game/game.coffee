@@ -492,9 +492,8 @@ loadImage 'maps/80map.png', (imageData) ->
 	try
     	init()
     catch error
-        alert("Sorry, WebGL failed to initialize on your device.")
-        console.log(error)
-        return
+        alert("Sorry, Game (probably WebGL?) failed to initialize on your device.")
+        throw error
 	animate()
 	physicsLoop()
 	document.getElementById('bg0').pause()

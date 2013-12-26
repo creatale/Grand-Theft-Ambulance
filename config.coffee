@@ -15,11 +15,10 @@ exports.config =
 				'js/vendor.js': /vendor(\/|\\)/
 			order:
 				before: [
-					'app/vendor/js/jquery-1.8.2.js'
-					'app/vendor/js/underscore-1.3.3.js'
-					'app/vendor/js/backbone-0.9.2.js'
-					'app/vendor/js/bootstrap-2.1.1.js'
-					'app/vendor/js/three-r55.js'
+					'app/vendor/js/jquery.js'
+					'app/vendor/js/underscore.js'
+					'app/vendor/js/backbone.js'
+					'app/vendor/js/bootstrap.js'
 				]
 		stylesheets:
 			joinTo:
