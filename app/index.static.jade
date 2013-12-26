@@ -1,80 +1,14 @@
-extends _layout
-
-block content
-	#game
-		#container
-		//- canvas#debug(width="2000px", height="2000px")
-		#cargo-frame
-			img#cargo-0(src="ui/heart-1.png")
-			img#cargo-1(src="ui/heart-0.png")
-			img#cargo-2(src="ui/heart-0.png")
-			img#cargo-3(src="ui/heart-0.png")
-			#victim-timeleft
-		#crash-frame
-			span#cash 1,000.00
-			&nbsp;&nbsp;
-			img(style="vertical-align:middle", src="ui/bitcoin.png")
-		#police-frame
-			img(src="ui/police.png")
-			img(src="ui/police.png")
-			img(src="ui/police.png")
-	#loading
-		img#splash(src='ui/splashscreen_solo.png')
-		#loadingText
-			.inner
-				h1 Welcome to Liverty City, stranger!
-				p
-					| Here is where the fun dies on the streets.
-				p
-					| Be quick to gather up the remains of road casualties before the officials can and cash their organs in at the black market butcher.
-				p
-					table
-						tr
-							td
-								img(src="ui/key_up.png", alt="Up-Key")
-							td Accelerate
-						tr
-							td
-								img(src="ui/key_down.png", alt="Down-Key")
-							td Brake
-						tr
-							td
-								img(src="ui/key_left.png", alt="Left-Key")
-								img(src="ui/key_right.png", alt="Right-Key")
-							td Steer
-						tr
-							td
-								img(src="ui/key_space.png", alt="Space-Key")
-							td Use body grabber
-				p Press this &rarr; 
-					button#startbutton Button
-					| 
-					| or press any key to begin.
-	#sounds
-		audio#bg0(preload='auto', autoplay, loop)
-			source(type='audio/ogg',  src='sound/bg0.ogg')
-			source(type='audio/mpeg', src='sound/bg0.mp3')
-		audio#bg1(preload='auto', loop)
-			source(type='audio/ogg',  src='sound/bg1.ogg')
-			source(type='audio/mpeg', src='sound/bg1.mp3')
-		audio#bg2(preload='auto', loop)
-			source(type='audio/ogg',  src='sound/bg2.ogg')
-			source(type='audio/mpeg', src='sound/bg2.mp3')
-		audio#door1(preload='auto')
-			source(type='audio/ogg',  src='sound/door1.ogg')
-			source(type='audio/mpeg', src='sound/door1.mp3')
-		audio#door2(preload='auto')
-			source(type='audio/ogg',  src='sound/door2.ogg')
-			source(type='audio/mpeg', src='sound/door2.mp3')
-		audio#sirene(preload='auto')
-			source(type='audio/ogg',  src='sound/sirene.ogg')
-			source(type='audio/mpeg', src='sound/sirene.mp3')
-		audio#kaching(preload='auto')
-			source(type='audio/ogg',  src='sound/cash.ogg')
-			source(type='audio/mpeg', src='sound/cash.mp3')
-		audio#grab(preload='auto')
-			source(type='audio/ogg',  src='sound/grab.ogg')
-			source(type='audio/mpeg', src='sound/grab.mp3')
-		audio#jail(preload='auto')
-			source(type='audio/ogg',  src='sound/jail.ogg')
-			source(type='audio/mpeg', src='sound/jail.mp3')
+doctype html
+html(lang='en')
+	head
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		meta(name='viewport', content='user-scalable=0')
+		title Grand Theft Ambulance
+		link(rel='stylesheet', href='css/app.css')
+		script(src='js/vendor.js')
+		script(src='js/app.js')
+		script.
+			require('application');
+	body
+		#contentContainer
