@@ -475,9 +475,6 @@ render = ->
 	camera.lookAt playerCar.root.position
 	updateHints()
 	renderer.render scene, camera
-unless Detector.webgl
-	Detector.addGetWebGLMessage()
-	document.getElementById("container").innerHTML = ""
 
 loadImage = require 'game/loadimage'
 

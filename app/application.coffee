@@ -10,6 +10,11 @@ Application =
 				'': 'index'
 
 			index: =>
+				if Modernizr.webgl
+					$('#startbutton').prop 'disabled', false
+				else
+					alert 'WebGL is not supported.'
+					$('#startbutton').prop 'disabled', true
 				$(window).keypress =>
 					$(window).unbind('keypress')
 					$('#loading').remove()
