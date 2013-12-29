@@ -5,7 +5,6 @@ cmd = (name) ->
 	if os.platform() is 'win32' then name + '.cmd' else name
 
 npm = cmd 'npm'
-coffee = cmd 'coffee'
 brunch = cmd 'brunch'
 
 task 'install', 'Install node.js packages', ->
@@ -14,8 +13,8 @@ task 'install', 'Install node.js packages', ->
 task 'update', 'Update node.js packages', ->
 	spawn npm, ['update'], {cwd: '.', stdio: 'inherit'}
 	
-task 'run', 'Start the server', ->
+task 'build', 'Build brunch project', ->
 	brunch = spawn brunch, ['build'], {cwd: '.', stdio: 'inherit'}
 
-task 'watch', 'Watch for file changes and (re-)start the server', ->
-	brunch = spawn brunch, ['w', '-s'], {cwd: '.', stdio: 'inherit'}
+task 'watch', 'Watch brunch project and rebuild if something changed', ->
+	brunch = spawn brunch, ['watch', '--server'], {cwd: '.', stdio: 'inherit'}
