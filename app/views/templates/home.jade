@@ -1,5 +1,5 @@
 .row
-	.col-md-6
+	.col-md-6.hidden-xs.hidden-sm
 		img.img-responsive(src='ui/splashscreen_solo.png')
 	.col-md-6.text-center
 		h1 Welcome to Liverty City, stranger!
@@ -25,11 +25,11 @@
 					.key SPACE
 				dd.
 					Body Grabber
-		.btn-group
-			button.btn.btn-primary.start 
-				| &nbsp;&nbsp;&nbsp;Start&nbsp;&nbsp;&nbsp;
+		.btn-group.btn-group-lg
 			button.btn.btn-default.mute
 				span.glyphicon.glyphicon-volume-up
+			button.btn.btn-primary.start 
+				| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 audio#bg0(preload='auto', autoplay, loop)
 	source(type='audio/ogg',  src='sound/bg0.ogg')
