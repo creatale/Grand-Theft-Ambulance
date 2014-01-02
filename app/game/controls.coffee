@@ -91,20 +91,26 @@ module.exports = class Controls
 				angle = Math.atan2 dY, dX
 				distance = Math.sqrt dX * dX + dY * dY
 				console.log 'Stick:', (angle * 57.29577951308232 | 0) + '°', (distance | 0) + 'px'
-				# Forward
+				# Forward on the upper part of the circle.
 				if angle > 0 and distance > 20
 					@moveForward = true
 					@moveBackward = false
-				# Backward
+				# Backward on the lower part of the circle.
 				else if angle < 0 and distance > 20
 					@moveForward = false
 					@moveBackward = true
 				else
 					@moveForward = false
 					@moveBackward = false
-				# Right with tolerance
-				@moveRight = Math.abs(angle) > (2 * Math.PI / 3) ? true : false
-				# Left with tolerance
-				@moveLeft = Math.abs(angle) < (Math.PI / 3) ? true : false
+				# Right on the right sector of the circle.
+				if Math.abs(angle) > (2 * Math.PI / 3) and distance > 60
+					@moveRight = true
+				else
+					@moveRight = false
+				# Left on the left sector of the circle.
+				if Math.abs(angle) < (Math.PI / 3) and distance > 60
+					@moveLeft = true
+				else
+					@moveLeft = false
 		return false
 
