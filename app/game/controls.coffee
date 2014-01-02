@@ -64,9 +64,9 @@ module.exports = class Controls
 	touchStart: (event) =>
 		event.preventDefault()
 		for touch in event.changedTouches
-			if not @analogTouch? and touch.pageX >= window.innerWidth / 2
+			if not @analogTouch? and touch.pageX >= 3 * window.innerWidth / 5
 				@analogTouch = cloneTouch touch
-			if not @grabTouch? and touch.pageX < window.innerWidth / 2
+			if not @grabTouch? and touch.pageX < 2 * window.innerWidth / 5
 				@grab = true
 				@grabTouch = cloneTouch touch
 		return false
