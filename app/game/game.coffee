@@ -214,11 +214,18 @@ init = ->
 	directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
 	directionalLight.position.set(1, 1, 0.5).normalize()
 	scene.add directionalLight
+
 	renderer = new THREE.WebGLRenderer(
 		clearColor: 0xffffff
 		precision: "lowp")
+	resizeHandler = ->
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+		renderer.setSize $(container).width(), $(container).height()
+		$('#touch-frame')[0].width = $(container).width()
+		$('#touch-frame')[0].height = $(container).height()
 	renderer.setDepthTest(false)
-	renderer.setSize $(container).width(), $(container).height()
+	resizeHandler()
 	container.appendChild renderer.domElement
 	renderer.domElement.style.position = "absolute"
 	renderer.domElement.style.bottom = "0px"
@@ -235,12 +242,9 @@ init = ->
 	placeVictim()
 	
 	#traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
-	
-	#
-	$(window).resize ->
-		camera.aspect = window.innerWidth / window.innerHeight
-		camera.updateProjectionMatrix()
-		renderer.setSize $(container).width(), $(container).height()
+
+	$(window).resize resizeHandler
+
 
 placeVictim = () ->
 	if victim?

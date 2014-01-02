@@ -30,6 +30,9 @@ module.exports = class Controls
 		@domElement.addEventListener 'touchcancel', @touchEnd, false
 		@domElement.addEventListener 'touchmove', @touchMove, false
 
+		@touchFrame = $('#touch-frame')
+		@touchContext = @touchFrame[0].getContext('2d')
+
 	keyDown: (event) =>
 		switch event.keyCode
 			when 37, 65 # Left, A
@@ -79,6 +82,7 @@ module.exports = class Controls
 		if @grabTouch? and findTouch(event.changedTouches, @grabTouch.identifier)?
 			@grab = false
 			@grabTouch = null
+		@touchContext.clearRect 0, 0, @touchFrame.width(), @touchFrame.height()
 		return false
 
 	touchMove: (event) =>
@@ -90,7 +94,6 @@ module.exports = class Controls
 				dY =  @analogTouch.pageY - touch.pageY
 				angle = Math.atan2 dY, dX
 				distance = Math.sqrt dX * dX + dY * dY
-				console.log 'Stick:', (angle * 57.29577951308232 | 0) + '°', (distance | 0) + 'px'
 				# Forward on the upper part of the circle.
 				if angle > 0 and distance > 20
 					@moveForward = true
@@ -112,5 +115,13 @@ module.exports = class Controls
 					@moveLeft = true
 				else
 					@moveLeft = false
+				# Draw indicator for analog stick.
+				@touchContext.clearRect 0, 0, @touchFrame.width(), @touchFrame.height()
+				@touchContext.beginPath()
+				@touchContext.moveTo @analogTouch.pageX, @analogTouch.pageY
+				@touchContext.lineTo touch.pageX, touch.pageY
+				@touchContext.strokeStyle = '#ff0000'
+				@touchContext.lineWidth = 2
+				@touchContext.stroke()
 		return false
 
