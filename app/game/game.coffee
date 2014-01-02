@@ -241,7 +241,6 @@ init = ->
 		camera.aspect = window.innerWidth / window.innerHeight
 		camera.updateProjectionMatrix()
 		renderer.setSize $(container).width(), $(container).height()
-		controls.handleResize()
 
 placeVictim = () ->
 	if victim?
@@ -480,7 +479,7 @@ loadImage = require 'game/loadimage'
 
 map = undefined
 loadImage 'maps/80map.png', (imageData) ->
-	console.log 'loaded', imageData
+	console.log 'Map', imageData
 	map = imageData
 	worldWidth = map.width
 	worldDepth = map.height

@@ -89,7 +89,7 @@ module.exports.StreetGraph = class StreetGraph
 		else if nodes.length > 0
 			return nodes[0]
 		else
-			console.log 'tada'
+			#console.log 'tada'
 			return @nodes[Math.floor(Math.random() * @nodes.length)]
 	
 	@fromMapData: (mapData) =>
