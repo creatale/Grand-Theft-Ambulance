@@ -7,7 +7,7 @@ module.exports = class Car
 
 		@root = new THREE.Object3D()
 
-	loadPartsJSON: (bodyURL) =>
+	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 256 * 1.8, 256 * 1.8
 		@bodyGeometry.dynamic = true
 		matrix = new THREE.Matrix4()

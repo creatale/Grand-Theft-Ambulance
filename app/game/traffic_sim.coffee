@@ -224,7 +224,7 @@ class SimulationCar extends Car
 			moveRight: false
 			moveForward: false
 
-	loadPartsJSON: (bodyURL) =>
+	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
 		matrix = new THREE.Matrix4()
 		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
@@ -249,7 +249,7 @@ class SimulationCar extends Car
 		# for mesh in @meshes
 			# mesh.visible = enable
 
-	# loadPartsJSON: (bodyURL) =>
+	# load: () =>
 		# @bodyGeometry = new THREE.CubeGeometry 40, 80, 80
 		# @createCar()
 
@@ -386,7 +386,7 @@ module.exports.TrafficSimulation = class TrafficSimulation
 			from = @streetGraph.randomNode nodes
 			to = from.randomTo()
 			car = new SimulationCar(@world, 0, from, to, to.randomTo(from), @simulationParameters.tileSize)
-			car.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+			car.load()
 			@scene.add car.root
 			@cars.push car
 			

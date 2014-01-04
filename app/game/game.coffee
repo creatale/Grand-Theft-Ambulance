@@ -21,7 +21,7 @@ graph = undefined
 nextPoliceSpawn = undefined
 cash = 0
 policeCount = 0
-mapX = undefined
+map = undefined
 Controls = require 'game/controls'
 Car = require 'game/car'
 PoliceCar = require 'game/policecar'
@@ -44,14 +44,27 @@ b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 
 
-
 init = (done) ->
-	container = document.getElementById("game-container")
+	controls = new Controls()
+
+	# Graphics scene.
+	scene = new THREE.Scene()
+	scene.fog = new THREE.FogExp2(0xffffff, 0)
+
+	# Lights.
+	ambientLight = new THREE.AmbientLight(0xcccccc)
+	scene.add ambientLight
+	directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
+	directionalLight.position.set(1, 1, 0.5).normalize()
+	scene.add directionalLight
+
+	# Camera.
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 5000)
 	camera.position.y = 2000
-	scene = new THREE.Scene()
-	scene.fog = new THREE.FogExp2(0xffffff, 0) # 0.00015 );
-		
+	camera.rotation.z = Math.PI
+	scene.add camera
+	
+	# Physics world.
 	world = new b2World new b2Vec2(0,0), true
 	# debugDraw = new b2DebugDraw()
 	# ctx = document.getElementById("debug").getContext("2d")
@@ -62,11 +75,46 @@ init = (done) ->
 	# debugDraw.SetLineThickness(1.0)
 	# debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit)
 	# world.SetDebugDraw(debugDraw)
+	
+	# Map.
+	map = new Map(scene, world)
+	map.load ->
+		graph = StreetGraph.fromMapData(map.map)
+		#traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
+		placeCar()
+		placeVictim()
+		done()
+
+	container = document.getElementById("game-container")
+
+	# Renderer.
+	renderer = new THREE.WebGLRenderer
+		clearColor: 0xffffff
+		precision: "lowp"
+	renderer.setDepthTest(false)
+	container.appendChild renderer.domElement
+	renderer.domElement.style.position = "absolute"
+	renderer.domElement.style.bottom = "0px"
+	renderer.domElement.style.right = "0px"
+	resizeHandler = ->
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+		renderer.setSize $(container).width(), $(container).height()
+		$('#touch-frame')[0].width = $(container).width()
+		$('#touch-frame')[0].height = $(container).height()
+	$(window).resize resizeHandler
+	resizeHandler()
+
+	# Frame statistics.
+	stats = new Stats()
+	stats.domElement.style.position = "absolute"
+	stats.domElement.style.bottom = "0px"
+	stats.domElement.style.right = "0px"
+	container.appendChild stats.domElement
+
+placeCar = () ->
 	playerCar = new Car world
-
-
-	playerCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
-
+	playerCar.load()
 	playerCar.onGrabbed = ->
 		carDirection = new THREE.Vector3(-Math.cos(playerCar.root.rotation.y) * 250, 0, -Math.sin(playerCar.root.rotation.y) * 250)
 		if playerCar.root.position.clone().sub(carDirection).sub(victim.root.position).length() < 500 and cargoCount < 4
@@ -74,57 +122,7 @@ init = (done) ->
 			cargoCount++
 			policeCount = Math.min(policeCount + 1, 9)
 			document.getElementById('grab').play()
-
 	scene.add playerCar.root
-	scene.add camera
-	camera.rotation.z = Math.PI
-	controls = new Controls()
-
-
-	# sides
-	light = new THREE.Color(0xeeeeee)
-	shadow = new THREE.Color(0x505050)
-	
-	mapX = new Map(scene, world)
-	mapX.load ->
-		graph = StreetGraph.fromMapData(mapX.map)
-		#traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
-		placeVictim()
-		done()
-
-	ambientLight = new THREE.AmbientLight(0xcccccc)
-	scene.add ambientLight
-	directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
-	directionalLight.position.set(1, 1, 0.5).normalize()
-	scene.add directionalLight
-
-	renderer = new THREE.WebGLRenderer(
-		clearColor: 0xffffff
-		precision: "lowp")
-	resizeHandler = ->
-		camera.aspect = window.innerWidth / window.innerHeight
-		camera.updateProjectionMatrix()
-		renderer.setSize $(container).width(), $(container).height()
-		$('#touch-frame')[0].width = $(container).width()
-		$('#touch-frame')[0].height = $(container).height()
-	renderer.setDepthTest(false)
-	resizeHandler()
-	container.appendChild renderer.domElement
-	renderer.domElement.style.position = "absolute"
-	renderer.domElement.style.bottom = "0px"
-	renderer.domElement.style.right = "0px"
-
-	stats = new Stats()
-	stats.domElement.style.position = "absolute"
-	stats.domElement.style.bottom = "0px"
-	stats.domElement.style.right = "0px"
-	container.appendChild stats.domElement
-
-
-
-
-	$(window).resize resizeHandler
-
 
 placeVictim = () ->
 	if victim?
@@ -136,10 +134,10 @@ placeVictim = () ->
 	randomNode = graph.randomNode([])
 	#console.log randomNode
 	victim = new Victim()
-	victim.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+	victim.load()
 	scene.add victim.root
-	victim.root.position.x = (randomNode.y - mapX.worldHalfDepth) * 500
-	victim.root.position.z = (randomNode.x - mapX.worldHalfWidth) * 500
+	victim.root.position.x = (randomNode.y - map.worldHalfDepth) * 500
+	victim.root.position.z = (randomNode.x - map.worldHalfWidth) * 500
 	
 	victimHint = new MapHint()
 	victimHint.loadParts("ui/victim_hint.png")
@@ -169,15 +167,6 @@ placeVictim = () ->
 		victimHint.update victim, playerCar
 		if butcherHint?
 			butcherHint.update {root: position: parkingPlace}, playerCar
-
-loadTexture = (path, callback) ->
-	image = new Image()
-	image.onload = ->
-		callback()
-
-	image.src = path
-	image
-
 
 # crash ui
 formatDollar = (num) ->
@@ -331,8 +320,8 @@ render = ->
 				y: playerCar.body.GetPosition().y
 		#console.log nextPoliceSpawn
 	else if nextPoliceSpawn? and clock.getElapsedTime() > nextPoliceSpawn.time
-		policeCar = new PoliceCar(world, playerCar, mapX.map, nextPoliceSpawn.position)
-		policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
+		policeCar = new PoliceCar(world, playerCar, map.map, nextPoliceSpawn.position)
+		policeCar.load()
 		#policeCar.body.SetPosition(new b2Vec2(nextPoliceSpawn.position.x, nextPoliceSpawn.position.y))
 		#policeCar.root.position = nextPoliceSpawn.position.root
 		console.log 'Adding police', nextPoliceSpawn.position

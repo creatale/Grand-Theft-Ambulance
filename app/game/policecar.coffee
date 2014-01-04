@@ -16,7 +16,7 @@ module.exports = class PoliceCar extends Car
 		@texture = "textures/police.png"
 		@controls = {}
 
-	loadPartsJSON: (bodyURL) =>
+	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
 		matrix = new THREE.Matrix4()
 		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2

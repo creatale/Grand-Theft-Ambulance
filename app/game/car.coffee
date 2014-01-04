@@ -193,7 +193,7 @@ module.exports = class Car
 		for mesh in @meshes
 			mesh.visible = enable
 
-	loadPartsJSON: (bodyURL) =>
+	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 332 * 1.8
 		@bodyGeometry.dynamic = true
 		matrix = new THREE.Matrix4()
