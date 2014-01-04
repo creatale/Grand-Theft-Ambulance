@@ -28,7 +28,8 @@ PoliceCar = require 'game/policecar'
 Victim = require 'game/victim'
 MapHint = require 'game/maphint'
 Map = require './map'
-{StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
+{SimulationParameters, TrafficSimulation} = require './traffic_sim'
+StreetGraph = require './road_network'
 
 updateHints = null
 
