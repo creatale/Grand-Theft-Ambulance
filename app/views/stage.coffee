@@ -7,6 +7,5 @@ module.exports = class HomeView extends Backbone.View
 
 	render: =>
 		@$el.attr('id', @idName).html(@template())
-
-	initialize: ->
-		@game = require 'game/game'
+		require 'game/game'
+		@

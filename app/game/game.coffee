@@ -21,16 +21,13 @@ graph = undefined
 nextPoliceSpawn = undefined
 cash = 0
 policeCount = 0
-worldWidth = 32
-worldDepth = 32
-worldHalfWidth = worldWidth / 2
-worldHalfDepth = worldDepth / 2
+mapX = undefined
 Controls = require 'game/controls'
 Car = require 'game/car'
 PoliceCar = require 'game/policecar'
 Victim = require 'game/victim'
 MapHint = require 'game/maphint'
-{tiles, palette} = require './palette'
+Map = require './map'
 {StreetGraph, SimulationParameters, TrafficSimulation} = require './traffic_sim'
 
 updateHints = null
@@ -46,7 +43,9 @@ b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 # b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
 b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 
-init = ->
+
+
+init = (done) ->
 	container = document.getElementById("game-container")
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 5000)
 	camera.position.y = 2000
@@ -86,129 +85,13 @@ init = ->
 	light = new THREE.Color(0xeeeeee)
 	shadow = new THREE.Color(0x505050)
 	
-	# sides
-	matrix = new THREE.Matrix4()
-	pxGeometry = new THREE.PlaneGeometry(100, 100)
+	mapX = new Map(scene, world)
+	mapX.load ->
+		graph = StreetGraph.fromMapData(mapX.map)
+		#traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
+		placeVictim()
+		done()
 
-	geometry = new THREE.Geometry()
-	dummy = new THREE.Mesh()
-	z = 0
-	index = 0
-
-	# tile physics
-	bodyDef = new b2BodyDef()
-	bodyDef.type = b2Body.b2_staticBody
-	fixDef = new b2FixtureDef()
-	fixDef.density = 1.0
-	fixDef.friction = 0.05
-	fixDef.restitution = 0.0
-	fixDef.shape = new b2PolygonShape()
-	fixDef.shape.SetAsBox 2.5, 2.5
-
-	isStreet = (x, y) ->
-		return false unless x >= 0 and y >= 0 and x < map.width and y < map.height
-		idx = (x * worldDepth + y) * 4
-		return map.data[idx + 1] is 0 and map.data[idx] > 0
-
-
-	while z < worldDepth
-		x = 0
-
-		while x < worldWidth
-			tile = map.data[index] * 256 + map.data[index + 1]
-			index += 4
-
-			if tile is 0xe000
-				tile |= isStreet(z - 1, x)
-				tile |= isStreet(z, x - 1) << 1
-				tile |= isStreet(z + 1, x) << 2
-				tile |= isStreet(z, x + 1) << 3
-			else if tile is 0x8080 and Math.random() > 0.5
-				tile = 0x7f7f
-			else if tile is 0xffff and Math.random() > 0.5
-				tile = 0xfffe
-			else if tile is 0x0101
-				parkingPlace = new THREE.Vector3(x * 500  - worldHalfWidth * 500, 0, z * 500  - worldHalfDepth * 500)
-
-			stack = palette[tile] or []
-			for item, h in stack
-				continue unless tiles[item]?
-				dummy.position.x = x * 500  - worldHalfWidth * 500
-				dummy.position.y = h * 500
-				dummy.position.z = z * 500  - worldHalfDepth * 500
-				dummy.geometry = tiles[item]
-				#dummy.geometry = pxGeometry
-				THREE.GeometryUtils.merge geometry, dummy
-
-				# physics
-				if tile in [0x8080, 0x7f7f, 0xffff, 0xfffe, 0x0000]
-					bodyDef.position.x = x * 5 - worldHalfWidth * 5
-					bodyDef.position.y = z * 5 - worldHalfDepth * 5
-					world.CreateBody(bodyDef).CreateFixture(fixDef)
-
-			x++
-		z++
-
-	matStreetStraight = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/street_h.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matStreetCorner = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/street_corner.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matStreetCrossing = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/street_x4.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matRoof = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/roof.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matWalk = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/walkway.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matStreetT = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/street_t.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matWall1 = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/tile_house_blue.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matWall2 = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/tile_house_red.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matButchery = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/tile_house_meat.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matButcheryEntrance = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/tile_parking.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-	matGrass = new THREE.MeshLambertMaterial(
-		map: THREE.ImageUtils.loadTexture("textures/gras1.png")
-		ambient: 0xbbbbbb
-		vertexColors: THREE.VertexColors
-	)
-
-	mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial([
-		matStreetStraight, matStreetCorner, matStreetCrossing,  matRoof, matWalk, matStreetT,
-		matWall1, matWall2, matButchery, matButcheryEntrance, matGrass]))
-	scene.add mesh
 	ambientLight = new THREE.AmbientLight(0xcccccc)
 	scene.add ambientLight
 	directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
@@ -230,18 +113,15 @@ init = ->
 	renderer.domElement.style.position = "absolute"
 	renderer.domElement.style.bottom = "0px"
 	renderer.domElement.style.right = "0px"
+
 	stats = new Stats()
 	stats.domElement.style.position = "absolute"
 	stats.domElement.style.bottom = "0px"
 	stats.domElement.style.right = "0px"
 	container.appendChild stats.domElement
 
-	graph = StreetGraph.fromMapData(map)
-	#console.log graph
 
-	placeVictim()
-	
-	#traffic = new TrafficSimulation({x: 0, y: 0}, graph, new SimulationParameters(2, 15, 5, 500, 25), world, scene, {x: map.width * 250, y: map.height * 250})
+
 
 	$(window).resize resizeHandler
 
@@ -258,8 +138,8 @@ placeVictim = () ->
 	victim = new Victim()
 	victim.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 	scene.add victim.root
-	victim.root.position.x = (randomNode.y - worldHalfDepth) * 500
-	victim.root.position.z = (randomNode.x - worldHalfWidth) * 500
+	victim.root.position.x = (randomNode.y - mapX.worldHalfDepth) * 500
+	victim.root.position.z = (randomNode.x - mapX.worldHalfWidth) * 500
 	
 	victimHint = new MapHint()
 	victimHint.loadParts("ui/victim_hint.png")
@@ -451,7 +331,7 @@ render = ->
 				y: playerCar.body.GetPosition().y
 		#console.log nextPoliceSpawn
 	else if nextPoliceSpawn? and clock.getElapsedTime() > nextPoliceSpawn.time
-		policeCar = new PoliceCar(world, playerCar, map, nextPoliceSpawn.position)
+		policeCar = new PoliceCar(world, playerCar, mapX.map, nextPoliceSpawn.position)
 		policeCar.loadPartsJSON 'textures/Male02_dds.js', 'textures/Male02_dds.js'
 		#policeCar.body.SetPosition(new b2Vec2(nextPoliceSpawn.position.x, nextPoliceSpawn.position.y))
 		#policeCar.root.position = nextPoliceSpawn.position.root
@@ -479,24 +359,13 @@ render = ->
 	updateHints()
 	renderer.render scene, camera
 
-loadImage = require 'game/loadimage'
-
-map = undefined
-loadImage 'maps/80map.png', (imageData) ->
-	console.log 'Map', imageData
-	map = imageData
-	worldWidth = map.width
-	worldDepth = map.height
-	worldHalfWidth = worldWidth / 2
-	worldHalfDepth = worldDepth / 2
-	try
-    	init()
-    catch error
-        alert("Sorry, Game (probably WebGL?) failed to initialize on your device.")
-        throw error
-	animate()
-	physicsLoop()
-	document.getElementById('bg0').pause()
-	document.getElementById('bg1').play()
+# silly workaround for HTML not being added to DOM, yet.
+setTimeout -> 
+	init ->
+		animate()
+		physicsLoop()
+		document.getElementById('bg0').pause()
+		document.getElementById('bg1').play()
+, 1
 
 clock = new THREE.Clock()
