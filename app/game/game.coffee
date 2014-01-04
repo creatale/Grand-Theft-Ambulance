@@ -183,33 +183,27 @@ formatDollar = (num) ->
 	newstr + "." + p[1]
 
 cash = 0
-#TODO: replace with proper code.
-setInterval(->
-#	cash += 1000
-	$('#cash').text(formatDollar(cash))
-, 500)
-
-# cargo ui
 cargoCount = 0
+ 
+uiLoop = ->
+	# Cash
+	$('#cash').text(formatDollar(cash))
 
-#TODO: replace with proper code.
-setInterval(->
-#	cargoCount = (cargoCount + 1) % 5
+	# Cargo
 	for index in [0..3]
 		if cargoCount > index
 			$("#cargo-" + index).attr("src", "ui/heart-1.png")
 		else
 			$("#cargo-" + index).attr("src", "ui/heart-0.png")
-, 500)
 
-# police ui
-setInterval(->
+	# Police
 	policeFrame = $("#police-frame")
 	return if policeFrame.children().length is policeCount
 	policeFrame.empty()
 	for index in [1..policeCount] by 1
 		policeFrame.append('<img src="ui/police.png">')
-, 500)
+
+	setTimeout uiLoop, 500
 
 #
 animate = ->
@@ -353,6 +347,7 @@ setTimeout ->
 	init ->
 		animate()
 		physicsLoop()
+		uiLoop()
 		document.getElementById('bg0').pause()
 		document.getElementById('bg1').play()
 , 1
