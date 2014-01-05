@@ -292,7 +292,7 @@ class Game
 					@world.DestroyBody policeCar.body
 					@policeCars.splice(idx, 1)
 
-		# Adjust music to build up tension.
+		# Adjust music for race with police to build up tension.
 		if 0 < @raceSince < 1
 			document.getElementById('bg1').volume = (1 - @raceSince) * 0.5
 			document.getElementById('bg2').play()
@@ -307,7 +307,8 @@ class Game
 			document.getElementById('bg2').pause()
 			document.getElementById('bg1').play()
 			document.getElementById('bg1').volume = 0.9 * 0.5
-			@raceSince = undefined #XXX: why?
+			# No race running with the police.
+			@raceSince = undefined
 
 		# Butcher Store.
 		if @map.parkingPlace? and @map.parkingPlace.clone().sub(@playerCar.root.position).length() < 300
