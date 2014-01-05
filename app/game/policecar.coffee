@@ -14,7 +14,8 @@ module.exports = class PoliceCar extends Car
 			y: 5
 		@lastForward = 0
 		@texture = "textures/police.png"
-		@controls = {}
+		@controls =
+			move: new THREE.Vector2()
 
 	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
@@ -71,7 +72,11 @@ module.exports = class PoliceCar extends Car
 
 		@lastForward = 0 #(@lastForward + 1) % 4
 
+		xx = 0
+		if steerLeft and (@lastForward is 0 or steerHard)
+			xx += -1
+		if steerRight and (@lastForward is 0 or steerHard)
+			xx += 1
 		@controls =
-			moveLeft: steerLeft and (@lastForward is 0 or steerHard)
-			moveRight: steerRight and (@lastForward is 0 or steerHard)
-			moveForward: (@lastForward is 0) or driveFast
+			move: new THREE.Vector2 xx, (@lastForward is 0) or driveFast
+				

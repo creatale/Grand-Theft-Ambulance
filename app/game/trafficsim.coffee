@@ -19,9 +19,7 @@ class SimulationCar extends Car
 
 		@texture = "textures/limousine_#{ Math.round(Math.random() * 8 + 0.5) }.png"
 		@controls =
-			moveLeft: false
-			moveRight: false
-			moveForward: false
+			move: new THREE.Vector2()
 
 	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
@@ -125,11 +123,13 @@ class SimulationCar extends Car
 				left = true
 			else
 				right = true
-			
+		xx = 0
+		if left
+			xx += -1
+		if right
+			xx += 1
 		@controls =
-			moveLeft: left
-			moveRight: right
-			moveForward: true
+			move: new THREE.Vector2 xx, 1
 		
 	atDestination: (tileSize) =>
 		# console.log @to.distanceTo(@position)

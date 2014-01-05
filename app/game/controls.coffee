@@ -13,11 +13,9 @@ cloneTouch = (touch) ->
 
 module.exports = class Controls
 	constructor: (@domElement=document) ->
-		@moveForward = false
-		@moveBackward = false
-		@moveLeft = false
-		@moveRight = false
+		@move = new THREE.Vector2()
 		@grab = false
+		@moveKeys = [false, false, false, false]
 		@analogTouch = null
 		@grabTouch = null
 
@@ -33,32 +31,49 @@ module.exports = class Controls
 		@touchFrame = $('#touch-frame')
 		@touchContext = @touchFrame[0].getContext('2d')
 
+	keyMove: =>
+		# Left/Right
+		@move.x = 0
+		if @moveKeys[1]
+			@move.x += -1
+		if @moveKeys[3]
+			@move.x += 1
+		# Gas/Brake
+		@move.y = 0
+		if @moveKeys[0]
+			@move.y += 1
+		if @moveKeys[2]
+			@move.y += -1
+		return false
+		
 	keyDown: (event) =>
 		switch event.keyCode
 			when 37, 65 # Left, A
-				@moveLeft = true
+				@moveKeys[1] = true
 			when 39, 68 # Right, D
-				@moveRight = true
+				@moveKeys[3] = true
 			when 38, 87 # Up, W
-				@moveForward = true
+				@moveKeys[0] = true
 			when 40, 83 # Down, S
-				@moveBackward = true
+				@moveKeys[2] = true
 			when 32 # Space
 				@grab = true
+		@keyMove()
 		return false
 
 	keyUp: (event) =>
 		switch event.keyCode
 			when 37, 65 # Left, A
-				@moveLeft = false
+				@moveKeys[1] = false
 			when 39, 68 # Right, D
-				@moveRight = false
+				@moveKeys[3] = false
 			when 38, 87 # Up, W
-				@moveForward = false
+				@moveKeys[0] = false
 			when 40, 83 # Down, S
-				@moveBackward = false
+				@moveKeys[2] = false
 			when 32  # Space
 				@grab = false
+		@keyMove()
 		return false
 	
 	touchStart: (event) =>
@@ -75,10 +90,8 @@ module.exports = class Controls
 		event.preventDefault()
 		if @analogTouch? and findTouch(event.changedTouches, @analogTouch.identifier)?
 			@analogTouch = null
-			@moveLeft = false
-			@moveRight = false
-			@moveForward = false
-			@moveBackward = false
+			@move.x = 0
+			@move.y = 0
 		if @grabTouch? and findTouch(event.changedTouches, @grabTouch.identifier)?
 			@grab = false
 			@grabTouch = null
@@ -90,38 +103,28 @@ module.exports = class Controls
 		if @analogTouch
 			touch = findTouch event.changedTouches, @analogTouch.identifier
 			if touch?
+				threshold = 20
 				dX =  @analogTouch.pageX - touch.pageX
 				dY =  @analogTouch.pageY - touch.pageY
-				angle = Math.atan2 dY, dX
-				distance = Math.sqrt dX * dX + dY * dY
-				# Forward on the upper part of the circle.
-				if angle > 0 and distance > 20
-					@moveForward = true
-					@moveBackward = false
-				# Backward on the lower part of the circle.
-				else if angle < 0 and distance > 20
-					@moveForward = false
-					@moveBackward = true
+				distance = Math.max(Math.sqrt(dX * dX + dY * dY), 1)
+				nX = dX / distance
+				nY = dY / distance
+				if threshold < distance
+					@move.x = -dX
+					@move.y = dY
 				else
-					@moveForward = false
-					@moveBackward = false
-				# Right on the right sector of the circle.
-				if Math.abs(angle) > (2 * Math.PI / 3) and distance > 60
-					@moveRight = true
-				else
-					@moveRight = false
-				# Left on the left sector of the circle.
-				if Math.abs(angle) < (Math.PI / 3) and distance > 60
-					@moveLeft = true
-				else
-					@moveLeft = false
+					@move.x = 0
+					@move.y = 0
 				# Draw indicator for analog stick.
 				@touchContext.clearRect 0, 0, @touchFrame.width(), @touchFrame.height()
-				@touchContext.beginPath()
-				@touchContext.moveTo @analogTouch.pageX, @analogTouch.pageY
-				@touchContext.lineTo touch.pageX, touch.pageY
 				@touchContext.strokeStyle = '#ff0000'
 				@touchContext.lineWidth = 2
+				@touchContext.beginPath()
+				@touchContext.moveTo @analogTouch.pageX - nX * Math.min(distance, threshold), @analogTouch.pageY - nY * Math.min(distance, threshold)
+				@touchContext.lineTo touch.pageX, touch.pageY
+				@touchContext.stroke()
+				@touchContext.beginPath()
+				@touchContext.arc @analogTouch.pageX, @analogTouch.pageY, threshold, 0, 2 * Math.PI, true
 				@touchContext.stroke()
 		return false
 

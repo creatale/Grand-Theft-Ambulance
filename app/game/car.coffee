@@ -314,26 +314,20 @@ module.exports = class Car
 		for wheel in @wheels
 			wheel.killSidewaysVelocity()
 
-		incr = @options.maxSteerAngle*delta
+		moveNormalized = controls.move.normalize()
 
-		if controls.moveLeft
-			@wheelAngle = THREE.Math.clamp @wheelAngle-incr, -@options.maxSteerAngle, 0
-		else if controls.moveRight
-			@wheelAngle = THREE.Math.clamp @wheelAngle+incr, 0, @options.maxSteerAngle
-		else
-			@wheelAngle = 0
-
+		# Steering.
+		@wheelAngle = moveNormalized.x * @options.maxSteerAngle
 		wheels = @getRevolvingWheels()
 		for wheel in wheels
 			wheel.addAngle @wheelAngle
 
-		# console.log @getSpeedKMH(), @maxSpeed
 		localVelocity = @getLocalVelocity()
-		if controls.moveForward and @getSpeedKMH() < @options.maxSpeed
+		if controls.move.y > 0 and @getSpeedKMH() < @options.maxSpeed
 			baseVect =
 				x: 0
 				y: -1
-		else if controls.moveBackward
+		else if controls.move.y < 0
 			if localVelocity.y < 0
 				baseVect =
 					x: 0
@@ -360,6 +354,3 @@ module.exports = class Car
 		for wheel in wheels
 			position = wheel.body.GetWorldCenter()
 			wheel.body.ApplyForce(wheel.body.GetWorldVector(new b2Vec2(fvect.x, fvect.y)), position)
-
-		# if @getSpeedKMH() < 4 and not (controls.moveForward or controls.moveBackward)
-		# 	@setSpeed 0
