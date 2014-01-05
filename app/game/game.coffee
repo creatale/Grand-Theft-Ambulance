@@ -4,8 +4,8 @@ MapHint = require './maphint'
 Car = require './car'
 PoliceCar = require './policecar'
 Victim = require './victim'
-StreetGraph = require './road_network'
-{SimulationParameters, TrafficSimulation} = require './traffic_sim'
+StreetGraph = require './roadnet'
+{SimulationParameters, TrafficSimulation} = require './trafficsim'
 
 b2Vec2 = Box2D.Common.Math.b2Vec2
 b2BodyDef = Box2D.Dynamics.b2BodyDef
@@ -208,6 +208,26 @@ class Game
 		@render()
 		@stats.update()
 
+	bust: =>
+		document.getElementById('bg1').pause()
+		document.getElementById('bg2').pause()
+		# @policeCount = 100
+		
+		if not @busted
+			gameDiv = $('#game')
+			for i in [0..10]
+				gameDiv.append """<div class='@busted-line' style='
+				-webkit-transform-origin:#{i*15}em 0em; transform-origin:#{i*15}em 0em;
+				-webkit-animation: @busted 0.5s #{i*0.01}s linear forwards; animation: @busted 0.5s #{i*0.01}s  linear forwards;
+				'></div>"""
+			gameDiv.append "<p id='@busted-text'>BUSTED!</p>"
+			@busted = true
+			document.getElementById('jail').play()
+		setTimeout =>
+			location.reload()
+		, 10000
+		return false
+
 	render: =>
 		deltaT = @clock.getDelta()
 		if not @gameOver
@@ -231,23 +251,7 @@ class Game
 			@blockedSince = null
 
 		if @gameOver
-			document.getElementById('bg1').pause()
-			document.getElementById('bg2').pause()
-			# @policeCount = 100
-			
-			if not @busted
-				gameDiv = $('#game')
-				for i in [0..10]
-					gameDiv.append """<div class='@busted-line' style='
-					-webkit-transform-origin:#{i*15}em 0em; transform-origin:#{i*15}em 0em;
-					-webkit-animation: @busted 0.5s #{i*0.01}s linear forwards; animation: @busted 0.5s #{i*0.01}s  linear forwards;
-					'></div>"""
-				gameDiv.append "<p id='@busted-text'>BUSTED!</p>"
-				@busted = true
-				document.getElementById('jail').play()
-			setTimeout =>
-				location.reload()
-			, 10000
+			bust()
 			return
 
 		@raceSince += deltaT
@@ -322,6 +326,5 @@ setTimeout ->
 		game.animate()
 		game.physicsLoop()
 		game.uiLoop()
-		document.getElementById('bg0').pause()
 		document.getElementById('bg1').play()
 , 1
