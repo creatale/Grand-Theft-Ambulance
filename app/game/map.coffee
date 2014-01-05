@@ -161,7 +161,7 @@ module.exports = class Map
 					else if tile is 0xffff and Math.random() > 0.5
 						tile = 0xfffe
 					else if tile is 0x0101
-						parkingPlace = new THREE.Vector3(x * 500  - @worldHalfWidth * 500, 0, z * 500  - @worldHalfDepth * 500)
+						@parkingPlace = new THREE.Vector3(x * 500  - @worldHalfWidth * 500, 0, z * 500  - @worldHalfDepth * 500)
 
 					stack = palette[tile] or []
 					for item, h in stack
