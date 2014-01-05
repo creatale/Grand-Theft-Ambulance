@@ -77,6 +77,7 @@ class Game
 		@gameOver = false
 		@busted = false
 		@policeCars = []
+		@policeCount = 0
 
 		@cash = 0
 		@cargoCount = 0
@@ -117,6 +118,7 @@ class Game
 				@placeVictim()
 				@cargoCount++
 				@policeCount = Math.min(@policeCount + 1, 9)
+				document.getElementById('grab').volume = 0.5
 				document.getElementById('grab').play()
 		@scene.add @playerCar.root
 
@@ -209,37 +211,48 @@ class Game
 		@stats.update()
 
 	bust: =>
+		return false if @busted
+		@busted = true
+		# Stop music.
 		document.getElementById('bg1').pause()
 		document.getElementById('bg2').pause()
-		# @policeCount = 100
-		
-		if not @busted
-			gameDiv = $('#game')
-			for i in [0..10]
-				gameDiv.append """<div class='@busted-line' style='
-				-webkit-transform-origin:#{i*15}em 0em; transform-origin:#{i*15}em 0em;
-				-webkit-animation: @busted 0.5s #{i*0.01}s linear forwards; animation: @busted 0.5s #{i*0.01}s  linear forwards;
-				'></div>"""
-			gameDiv.append "<p id='@busted-text'>BUSTED!</p>"
-			@busted = true
-			document.getElementById('jail').play()
+		# Jail animation.
+		gameDiv = $('#game')
+		for i in [0..10]
+			gameDiv.append """<div class='busted-line' style='
+			-webkit-transform-origin:#{i*15}em 0em; transform-origin:#{i*15}em 0em;
+			-webkit-animation: busted 0.5s #{i*0.01}s linear forwards; animation: busted 0.5s #{i*0.01}s  linear forwards;
+			'></div>"""
+		gameDiv.append "<p id='busted-text'>BUSTED!</p>"
+		# Jail sound.
+		document.getElementById('jail').volume = 0.5
+		document.getElementById('jail').play()
+		# Page reload.
 		setTimeout =>
 			location.reload()
-		, 10000
+		, 5000
 		return false
 
 	render: =>
 		deltaT = @clock.getDelta()
-		if not @gameOver
-			@playerCar.update deltaT, @controls
+		@raceSince += deltaT
+
+		if @gameOver
+			@bust()
+			return false
+		
+		@playerCar.update deltaT, @controls
 		#traffic.step deltaT, {x: @playerCar.body.GetPosition().x, y: @playerCar.body.GetPosition().z}
 		#traffic.update deltaT
+
+		# Police AI.
 		@blocked = false
 		for policeCar in @policeCars
 			policeCar.update deltaT
 			policeCar.kiUpdate deltaT
 			if policeCar.root.position.clone().sub(@playerCar.root.position).length() < 2000 and not @gameOver
 				@raceSince = 0 unless 0 < @raceSince < 2
+				document.getElementById('sirene').volume = 0.5
 				document.getElementById('sirene').play()
 				if policeCar.root.position.clone().sub(@playerCar.root.position).length() < 800 and @playerCar.getSpeedKMH() < 5
 					@blocked = true
@@ -250,39 +263,7 @@ class Game
 		if not @blocked
 			@blockedSince = null
 
-		if @gameOver
-			bust()
-			return
-
-		@raceSince += deltaT
-
-		if 0 < @raceSince < 1
-			document.getElementById('bg1').volume = (1 - @raceSince)
-			document.getElementById('bg2').play()
-			document.getElementById('bg2').volume = 1
-		else if 1 < @raceSince < 15
-			document.getElementById('bg1').pause()
-		else if 15 < @raceSince < 20
-			document.getElementById('bg2').volume = Math.min(Math.max((20 - @raceSince) / 5, 0), 1)
-			document.getElementById('bg1').play()
-			document.getElementById('bg1').volume = Math.min(Math.max(@raceSince - 19, 0), 0.9)
-		else if @raceSince > 20
-			document.getElementById('bg2').pause()
-			document.getElementById('bg1').play()
-			document.getElementById('bg1').volume = 0.9
-			@raceSince = undefined
-
-		if @map.parkingPlace? and @map.parkingPlace.clone().sub(@playerCar.root.position).length() < 300
-			if @cargoCount > 0
-				document.getElementById('kaching').play()
-				@policeCount = Math.max(@policeCount - 1, 0)
-			@cash += @cargoCount * 10000
-			if @butcherHint?
-				@scene.remove @butcherHint.root
-			@cargoCount = 0
-
-		b2Transform = require
-
+		# Police spawning.
 		if @policeCars.length < @policeCount < 10 and not @nextPoliceSpawn?
 			@nextPoliceSpawn =
 				time: @clock.getElapsedTime() + 5
@@ -311,13 +292,43 @@ class Game
 					@world.DestroyBody policeCar.body
 					@policeCars.splice(idx, 1)
 
+		# Adjust music to build up tension.
+		if 0 < @raceSince < 1
+			document.getElementById('bg1').volume = (1 - @raceSince) * 0.5
+			document.getElementById('bg2').play()
+			document.getElementById('bg2').volume = 1 * 0.5
+		else if 1 < @raceSince < 15
+			document.getElementById('bg1').pause()
+		else if 15 < @raceSince < 20
+			document.getElementById('bg2').volume = Math.min(Math.max((20 - @raceSince) / 5, 0), 1) * 0.5
+			document.getElementById('bg1').play()
+			document.getElementById('bg1').volume = Math.min(Math.max(@raceSince - 19, 0), 0.9) * 0.5
+		else if @raceSince > 20
+			document.getElementById('bg2').pause()
+			document.getElementById('bg1').play()
+			document.getElementById('bg1').volume = 0.9 * 0.5
+			@raceSince = undefined #XXX: why?
 
+		# Butcher Store.
+		if @map.parkingPlace? and @map.parkingPlace.clone().sub(@playerCar.root.position).length() < 300
+			if @cargoCount > 0
+				document.getElementById('kaching').volume = 0.5
+				document.getElementById('kaching').play()
+				@policeCount = Math.max(@policeCount - 1, 0)
+			@cash += @cargoCount * 10000
+			if @butcherHint?
+				@scene.remove @butcherHint.root
+			@cargoCount = 0
+
+		# Speed depended camera.
 		@camera.position.x = @playerCar.root.position.x
 		@camera.position.z = @playerCar.root.position.z
 		carSpeed = @playerCar.getSpeedKMH()
 		@camera.position.y = THREE.Math.clamp (Math.pow(Math.max(0,carSpeed - 10),1.01) - 20 + @camera.position.y), 2000, 3000
 		@camera.lookAt @playerCar.root.position
+
 		@updateHints()
+
 		@renderer.render @scene, @camera
 
 # silly workaround for HTML not being added to DOM, yet.
@@ -326,5 +337,6 @@ setTimeout ->
 		game.animate()
 		game.physicsLoop()
 		game.uiLoop()
+		document.getElementById('bg1').volume = 0.5
 		document.getElementById('bg1').play()
 , 1
