@@ -322,29 +322,20 @@ module.exports = class Car
 		for wheel in wheels
 			wheel.addAngle @wheelAngle
 
-		localVelocity = @getLocalVelocity()
-		if controls.move.y > 0 and @getSpeedKMH() < @options.maxSpeed
-			baseVect =
-				x: 0
-				y: -1
-		else if controls.move.y < 0
-			if localVelocity.y < 0
-				baseVect =
-					x: 0
-					y: 1.3
+		# Gas/Brake
+		baseVect =
+			x: 0
+			y: 0
+		if @getSpeedKMH() < @options.maxSpeed
+			if controls.move.y > 0
+				baseVect.y = -1 * controls.move.y
 			else
-				baseVect =
-					x: 0
-					y: 0.7
-		else
-			if localVelocity.y < -0.1
-				baseVect =
-					x: 0
-					y: 1
-			else
-				baseVect =
-					x: 0
-					y: 0
+				localVelocity = @getLocalVelocity()
+				# Test if we need to apply a "driving forward" malus
+				if localVelocity.y < 0
+					baseVect.y = -1.3 * controls.move.y
+				else
+					baseVect.y = -0.7 * controls.move.y
 
 		fvect = 
 			x: @power*baseVect.x
