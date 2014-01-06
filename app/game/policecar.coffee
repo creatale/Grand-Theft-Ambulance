@@ -12,10 +12,9 @@ module.exports = class PoliceCar extends Car
 		@position =
 			x: 5
 			y: 5
-		@lastForward = 0
-		@texture = "textures/police.png"
 		@controls =
 			move: new THREE.Vector2()
+		@crashed = false
 
 	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 256 * 1.8
@@ -23,7 +22,7 @@ module.exports = class PoliceCar extends Car
 		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
 		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI
 		#@updateSprite(0)
-		map = THREE.ImageUtils.loadTexture(@texture)
+		map = THREE.ImageUtils.loadTexture("textures/police.png")
 		map.wrapS = map.wrapT = THREE.RepeatWrapping
 		@bodyMaterials = [
 			new THREE.MeshLambertMaterial( { ambient: 0xbbbbbb, map: map, transparent: true, side: THREE.DoubleSide } ),
@@ -54,29 +53,33 @@ module.exports = class PoliceCar extends Car
 		#console.log relativeDirection, steerLeft, steerRight, relativeDirection.y < 0
 
 		# WATCH OUT THE WALL... skreeech
+		walls = [0x8080, 0xffff]
 		tileAhead = @lookAhead angle
-		if tileAhead in [0x8080, 0xffff]
+		if tileAhead in walls
 			tileLeft = @lookAhead(angle + Math.PI / 3)
 			tileRight = @lookAhead(angle - Math.PI / 3)
-			#console.log tileAhead, tileLeft, tileRight
+			#console.log tileAhead in walls, tileLeft in walls, tileRight in walls
 			steerHard = true
-			if tileRight not in [0x8080, 0xffff]
+			if tileRight not in walls
 				steerRight = true
 				steerLeft = false
-			else if tileLeft not in [0x8080, 0xfff]
+			else if tileLeft not in walls
 				steerLeft = true
 				steerRight = false
-			else
-				# AAAAAAAHHHH...
+		
+			if @getSpeedKMH() < 1
+				@crashed = true
+				setTimeout =>
+					@crashed = false
+				, 1000
 
-
-		@lastForward = 0 #(@lastForward + 1) % 4
-
-		xx = 0
-		if steerLeft and (@lastForward is 0 or steerHard)
-			xx += -1
-		if steerRight and (@lastForward is 0 or steerHard)
-			xx += 1
-		@controls =
-			move: new THREE.Vector2 xx, (@lastForward is 0) or driveFast
-				
+		@controls.move.x = 0
+		if steerLeft 
+			@controls.move.x += -1
+		if steerRight 
+			@controls.move.x += 1
+		if @crashed
+			@controls.move.y = -1
+		else
+			@controls.move.y = 1
+		
