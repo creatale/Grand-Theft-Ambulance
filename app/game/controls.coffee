@@ -103,28 +103,36 @@ module.exports = class Controls
 		if @analogTouch
 			touch = findTouch event.changedTouches, @analogTouch.identifier
 			if touch?
-				threshold = 20
+				fingerSize = 25
+				stickSize = fingerSize * 3
 				dX =  @analogTouch.pageX - touch.pageX
 				dY =  @analogTouch.pageY - touch.pageY
 				distance = Math.max(Math.sqrt(dX * dX + dY * dY), 1)
 				nX = dX / distance
 				nY = dY / distance
-				if threshold < distance
+				if fingerSize < distance
 					@move.x = -dX
 					@move.y = dY
+					@move.setLength(Math.min(distance / stickSize, stickSize))
 				else
 					@move.x = 0
 					@move.y = 0
-				# Draw indicator for analog stick.
+				# Clear.
 				@touchContext.clearRect 0, 0, @touchFrame.width(), @touchFrame.height()
 				@touchContext.strokeStyle = '#ff0000'
-				@touchContext.lineWidth = 2
+				@touchContext.lineWidth = 1
+				# Draw indicator for analog stick.
 				@touchContext.beginPath()
-				@touchContext.moveTo @analogTouch.pageX - nX * Math.min(distance, threshold), @analogTouch.pageY - nY * Math.min(distance, threshold)
-				@touchContext.lineTo touch.pageX, touch.pageY
+				@touchContext.arc @analogTouch.pageX, @analogTouch.pageY, fingerSize, 0, 2 * Math.PI, true
 				@touchContext.stroke()
 				@touchContext.beginPath()
-				@touchContext.arc @analogTouch.pageX, @analogTouch.pageY, threshold, 0, 2 * Math.PI, true
+				@touchContext.arc @analogTouch.pageX, @analogTouch.pageY, stickSize, 0, 2 * Math.PI, true
 				@touchContext.stroke()
+				# Draw direction indicator.
+				if fingerSize < distance
+					@touchContext.beginPath()
+					@touchContext.moveTo @analogTouch.pageX - nX * fingerSize, @analogTouch.pageY - nY * fingerSize
+					@touchContext.lineTo touch.pageX, touch.pageY
+					@touchContext.stroke()
 		return false
 

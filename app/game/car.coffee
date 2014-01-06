@@ -314,10 +314,8 @@ module.exports = class Car
 		for wheel in @wheels
 			wheel.killSidewaysVelocity()
 
-		moveNormalized = controls.move.normalize()
-
 		# Steering.
-		@wheelAngle = moveNormalized.x * @options.maxSteerAngle
+		@wheelAngle = controls.move.x * @options.maxSteerAngle
 		wheels = @getRevolvingWheels()
 		for wheel in wheels
 			wheel.addAngle @wheelAngle
