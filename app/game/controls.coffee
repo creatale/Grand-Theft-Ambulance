@@ -77,30 +77,39 @@ module.exports = class Controls
 		return false
 	
 	touchStart: (event) =>
-		event.preventDefault()
+		defaultBehavior  = true
 		for touch in event.changedTouches
 			if not @analogTouch? and touch.pageX >= 3 * window.innerWidth / 5
+				defaultBehavior = false
 				@analogTouch = cloneTouch touch
 			if not @grabTouch? and touch.pageX < 2 * window.innerWidth / 5
+				defaultBehavior = false
 				@grab = true
 				@grabTouch = cloneTouch touch
+		unless defaultBehavior 
+			event.preventDefault()
 		return false
 
 	touchEnd: (event) =>
-		event.preventDefault()
+		defaultBehavior = true
 		if @analogTouch? and findTouch(event.changedTouches, @analogTouch.identifier)?
+			defaultBehavior = false
 			@analogTouch = null
 			@move.x = 0
 			@move.y = 0
 		if @grabTouch? and findTouch(event.changedTouches, @grabTouch.identifier)?
+			defaultBehavior = false
 			@grab = false
 			@grabTouch = null
 		@touchContext.clearRect 0, 0, @touchFrame.width(), @touchFrame.height()
+		unless defaultBehavior
+			event.preventDefault()
 		return false
 
 	touchMove: (event) =>
-		event.preventDefault()
+		defaultBehavior = true
 		if @analogTouch
+			defaultBehavior = false
 			touch = findTouch event.changedTouches, @analogTouch.identifier
 			if touch?
 				fingerSize = 25
@@ -134,5 +143,7 @@ module.exports = class Controls
 					@touchContext.moveTo @analogTouch.pageX - nX * fingerSize, @analogTouch.pageY - nY * fingerSize
 					@touchContext.lineTo touch.pageX, touch.pageY
 					@touchContext.stroke()
+		unless defaultBehavior
+			event.preventDefault()
 		return false
 
