@@ -9,6 +9,7 @@ module.exports = class PoliceCar extends Car
 			renderOffset:
 				x: 0
 				y: 0
+			maxSpeed: 200
 		@position =
 			x: 5
 			y: 5
@@ -39,47 +40,35 @@ module.exports = class PoliceCar extends Car
 	kiUpdate: (delta) =>
 		# Get direction vector towards player.
 		angle = -@body.GetAngle() + Math.PI
-		direction = @playerCar.root.position.clone().sub(@root.position).normalize()
+		delta = @playerCar.root.position.clone().sub(@root.position)
+		distance = delta.length()
+		direction = delta.normalize()
 		relativeDirection =
 			x: direction.x * Math.cos(angle) - direction.z * Math.sin(angle)
 			y: direction.x * Math.sin(angle) + direction.z * Math.cos(angle)
 
-		# Sophisticated decision chain.
-		steerLeft = relativeDirection.x > 0.03 or relativeDirection.y < -0.03
-		steerRight = not steerLeft and relativeDirection.x < -0.05
-		driveFast = relativeDirection.y > 0 and Math.abs(relativeDirection.x) < 0.2
-		steerHard = relativeDirection.y < 0 or Math.abs(relativeDirection.x) > 0.15
+		# Drive towards playes unless crashed.
+		@controls.move.x = -relativeDirection.x
+		unless @crashed
+			@controls.move.y = if relativeDirection.y > 0 then 1 else -1 #1
+		else
+			@controls.move.y = -1
 
-		#console.log relativeDirection, steerLeft, steerRight, relativeDirection.y < 0
-
-		# WATCH OUT THE WALL... skreeech
+		# WATCH OUT FOR WALLS... skreeech
 		walls = [0x8080, 0xffff]
 		tileAhead = @lookAhead angle
 		if tileAhead in walls
 			tileLeft = @lookAhead(angle + Math.PI / 3)
 			tileRight = @lookAhead(angle - Math.PI / 3)
 			#console.log tileAhead in walls, tileLeft in walls, tileRight in walls
-			steerHard = true
 			if tileRight not in walls
-				steerRight = true
-				steerLeft = false
+				@controls.move.x = 1
 			else if tileLeft not in walls
-				steerLeft = true
-				steerRight = false
+				@controls.move.x = -1
 		
-			if @getSpeedKMH() < 1
+			# Test if police crashed (crashing with the player is ok, though)
+			if @getSpeedKMH() < 1 and distance > 500
 				@crashed = true
 				setTimeout =>
 					@crashed = false
-				, 1000
-
-		@controls.move.x = 0
-		if steerLeft 
-			@controls.move.x += -1
-		if steerRight 
-			@controls.move.x += 1
-		if @crashed
-			@controls.move.y = -1
-		else
-			@controls.move.y = 1
-		
+				, 1000	
