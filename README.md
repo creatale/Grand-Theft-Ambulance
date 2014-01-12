@@ -21,6 +21,16 @@ Open [gta.creatale.de](http://gta.creatale.de) and start playing - yes it's that
 
 # Changelog
 
+### v0.0.3 (January 12, 2014)
+
+- Made controls for driving non-boolean
+- Police can recover from crashes
+- Police is now even harder to leave behind
+- Reduced overall volume
+- Added touch analog stick indicator
+- Keep default touch behaviour for the center of the screen
+- Lots of refactoring
+
 ### v0.0.2 (January 2, 2014)
 
 - Huge dependency upgrade 
