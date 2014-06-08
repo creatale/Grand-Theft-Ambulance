@@ -195,7 +195,6 @@ module.exports = class Car
 
 	load: () =>
 		@bodyGeometry = new THREE.PlaneGeometry 128 * 1.8, 332 * 1.8
-		@bodyGeometry.dynamic = true
 		matrix = new THREE.Matrix4()
 		@bodyGeometry.applyMatrix matrix.makeRotationX -Math.PI / 2
 		@bodyGeometry.applyMatrix matrix.makeRotationY Math.PI

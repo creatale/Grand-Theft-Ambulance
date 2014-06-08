@@ -47,7 +47,7 @@ class SimulationCar extends Car
 			# mesh.visible = enable
 
 	# load: () =>
-		# @bodyGeometry = new THREE.CubeGeometry 40, 80, 80
+		# @bodyGeometry = new THREE.BoxGeometry 40, 80, 80
 		# @createCar()
 
 	# createBody: (geometry, materials) =>

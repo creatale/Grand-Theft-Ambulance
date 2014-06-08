@@ -6,7 +6,6 @@ exports.config =
 	paths:
 		watched: [
 			'app'
-			'app/vendor'
 		]
 	files:
 		javascripts:
@@ -22,7 +21,8 @@ exports.config =
 				]
 		stylesheets:
 			joinTo:
-				'css/app.css': /^(app|vendor)/
+				'css/app.css': /^app[\\/](?!vendor)/
+				'css/vendor.css': /^app[\\/]vendor/
 			order:
 				before: [
 					'app/vendor/css/bootstrap.css'
@@ -34,4 +34,3 @@ exports.config =
 			extension: ".static.jade"
 	server:
 		port: 9000
-		
