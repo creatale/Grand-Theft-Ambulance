@@ -36,11 +36,11 @@ makeBox = (materialIndex = 6) ->
 	nzGeometry.applyMatrix( matrix.makeRotationY( Math.PI ) );
 	nzGeometry.applyMatrix( matrix.makeTranslation( 0, 240, -250 ) );
 
-	THREE.GeometryUtils.merge geometry, pxGeometry
-	THREE.GeometryUtils.merge geometry, nxGeometry
-	THREE.GeometryUtils.merge geometry, pyGeometry
-	THREE.GeometryUtils.merge geometry, pzGeometry
-	THREE.GeometryUtils.merge geometry, nzGeometry
+	geometry.merge pxGeometry
+	geometry.merge nxGeometry
+	geometry.merge pyGeometry
+	geometry.merge pzGeometry
+	geometry.merge nzGeometry
 
 	return geometry
 
@@ -171,7 +171,8 @@ module.exports = class Map
 						dummy.position.z = z * 500  - @worldHalfDepth * 500
 						dummy.geometry = tiles[item]
 						#dummy.geometry = pxGeometry
-						THREE.GeometryUtils.merge geometry, dummy
+						dummy.matrixAutoUpdate && dummy.updateMatrix();
+						geometry.merge dummy.geometry, dummy.matrix
 
 						# physics
 						if tile in [0x8080, 0x7f7f, 0xffff, 0xfffe, 0x0000]
