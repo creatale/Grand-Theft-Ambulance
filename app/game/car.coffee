@@ -172,7 +172,10 @@ module.exports = class Car
 		@body.CreateFixture fixDef
 
 
-		
+		@door1 = new Howl
+			urls: ['sound/door1.ogg', 'sound/door1.mp3']
+		@door2 = new Howl
+			urls: ['sound/door2.ogg', 'sound/door2.mp3']
 
 		@wheels = []
 
@@ -234,7 +237,7 @@ module.exports = class Car
 		# grab
 		if controls? and controls.grab and not @grabbing
 			@grabbing = true
-			document.getElementById('door1').play()
+			@door1.play()
 			keyFrame = 0
 			animFunc = () =>
 				keyFrame++
@@ -245,7 +248,7 @@ module.exports = class Car
 					setTimeout(animFunc, 80)
 				else
 					@grabbing = false
-					document.getElementById('door2').play()
+					@door2.play()
 			animFunc()
 
 		# translate physics representation to renderer

@@ -64,6 +64,20 @@ class Game
 		# debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit)
 		# @world.SetDebugDraw(debugDraw)
 
+		# Sounds.
+		@bg1 = new Howl
+			urls: ['sound/bg1.ogg', 'sound/bg1.mp3']
+		@bg2 = new Howl
+			urls: ['sound/bg2.ogg', 'sound/bg2.mp3']
+		@sirene = new Howl
+			urls: ['sound/sirene.ogg', 'sound/sirene.mp3']
+		@kaching = new Howl
+			urls: ['sound/kaching.ogg', 'sound/kaching.mp3']
+		@grab = new Howl
+			urls: ['sound/grab.ogg', 'sound/grab.mp3']
+		@jail = new Howl
+			urls: ['sound/jail.ogg', 'sound/jail.mp3']
+
 		# Map.
 		@map = new Map(@scene, @world)
 		@map.load =>
@@ -118,8 +132,8 @@ class Game
 				@placeVictim()
 				@cargoCount++
 				@policeCount = Math.min(@policeCount + 1, 9)
-				document.getElementById('grab').volume = 0.5
-				document.getElementById('grab').play()
+				@grab.volume = 0.5
+				@grab.play()
 		@scene.add @playerCar.root
 
 	placeVictim: =>
@@ -184,6 +198,12 @@ class Game
 			for index in [1..@policeCount] by 1
 				policeFrame.append('<img src="ui/police.png">')
 
+		# Background music.
+		unless @musicOnce?
+			@bg1.volume = 0.5
+			@bg1.play()
+		@musicOnce = true
+		
 		setTimeout @uiLoop, 500
 
 	physicsLoop: =>
@@ -225,8 +245,8 @@ class Game
 			'></div>"""
 		gameDiv.append "<p id='busted-text'>BUSTED!</p>"
 		# Jail sound.
-		document.getElementById('jail').volume = 0.5
-		document.getElementById('jail').play()
+		@jail.volume = 0.5
+		@jail.play()
 		# Page reload.
 		setTimeout =>
 			location.reload()
@@ -252,8 +272,8 @@ class Game
 			policeCar.kiUpdate deltaT
 			if policeCar.root.position.clone().sub(@playerCar.root.position).length() < 2000 and not @gameOver
 				@raceSince = 0 unless 0 < @raceSince < 2
-				document.getElementById('sirene').volume = 0.5
-				document.getElementById('sirene').play()
+				@sirene.volume = 0.5
+				@sirene.play()
 				if policeCar.root.position.clone().sub(@playerCar.root.position).length() < 800 and @playerCar.getSpeedKMH() < 5
 					@blocked = true
 					if not @blockedSince?
@@ -294,27 +314,27 @@ class Game
 
 		# Adjust music for race with police to build up tension.
 		if 0 < @raceSince < 1
-			document.getElementById('bg1').volume = (1 - @raceSince) * 0.5
-			document.getElementById('bg2').play()
-			document.getElementById('bg2').volume = 1 * 0.5
+			@bg1.volume = (1 - @raceSince) * 0.5
+			@bg2.play()
+			@bg2.volume = 1 * 0.5
 		else if 1 < @raceSince < 15
-			document.getElementById('bg1').pause()
+			@bg1.pause()
 		else if 15 < @raceSince < 20
-			document.getElementById('bg2').volume = Math.min(Math.max((20 - @raceSince) / 5, 0), 1) * 0.5
-			document.getElementById('bg1').play()
-			document.getElementById('bg1').volume = Math.min(Math.max(@raceSince - 19, 0), 0.9) * 0.5
+			@bg2.volume = Math.min(Math.max((20 - @raceSince) / 5, 0), 1) * 0.5
+			@bg1.play()
+			@bg1.volume = Math.min(Math.max(@raceSince - 19, 0), 0.9) * 0.5
 		else if @raceSince > 20
-			document.getElementById('bg2').pause()
-			document.getElementById('bg1').play()
-			document.getElementById('bg1').volume = 0.9 * 0.5
+			@bg2.pause()
+			@bg1.play()
+			@bg1.volume = 0.9 * 0.5
 			# No race running with the police.
 			@raceSince = undefined
 
 		# Butcher Store.
 		if @map.parkingPlace? and @map.parkingPlace.clone().sub(@playerCar.root.position).length() < 300
 			if @cargoCount > 0
-				document.getElementById('kaching').volume = 0.5
-				document.getElementById('kaching').play()
+				@kaching.volume = 0.5
+				@kaching.play()
 				@policeCount = Math.max(@policeCount - 1, 0)
 			@cash += @cargoCount * 10000
 			if @butcherHint?
@@ -338,6 +358,4 @@ setTimeout ->
 		game.animate()
 		game.physicsLoop()
 		game.uiLoop()
-		document.getElementById('bg1').volume = 0.5
-		document.getElementById('bg1').play()
 , 1
