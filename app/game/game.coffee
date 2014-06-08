@@ -67,8 +67,10 @@ class Game
 		# Sounds.
 		@bg1 = new Howl
 			urls: ['sound/bg1.ogg', 'sound/bg1.mp3']
+			loop: true
 		@bg2 = new Howl
 			urls: ['sound/bg2.ogg', 'sound/bg2.mp3']
+			loop: true
 		@sirene = new Howl
 			urls: ['sound/sirene.ogg', 'sound/sirene.mp3']
 		@kaching = new Howl
