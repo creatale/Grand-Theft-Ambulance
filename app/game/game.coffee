@@ -189,9 +189,9 @@ class Game
 		# Cargo
 		for index in [0..3]
 			if @cargoCount > index
-				$("#cargo-" + index).attr("src", "ui/heart-1.png")
+				$("#cargo-" + index).attr("src", "ui/heart-1.png") if $("#cargo-" + index).attr("src") isnt "ui/heart-1.png"
 			else
-				$("#cargo-" + index).attr("src", "ui/heart-0.png")
+				$("#cargo-" + index).attr("src", "ui/heart-0.png") if $("#cargo-" + index).attr("src") isnt "ui/heart-0.png"
 
 		# Police
 		policeFrame = $("#police-frame")
