@@ -1,32 +1,43 @@
 .row
 	.col-md-6.hidden-xs.hidden-sm
 		img.img-responsive(src='ui/splashscreen_solo.png')
-	.col-md-6.text-center
-		h1 Welcome to Liverty City, stranger!
-		p.lead
+	.col-md-6.col-xs-8.col-xs-offset-2
+		h1.text-center Welcome to Liverty City, stranger!
+		p.lead.text-center
 			| Here is where the fun dies on the streets.
-		.jumbotron
-			p
-				| Be quick to gather up the remains of road casualties before the officials can and cash their organs in at the black market butcher.
-			dl.dl-horizontal
-				dt
-					.key ▲
-					| &nbsp;
-					.key ▼
-				dd.
-					Gas and Brake
-				dt
-					.key ◀
-					| &nbsp;
-					.key ▶
-				dd.
-					Steering Wheel
-				dt
-					.key SPACE
-				dd.
-					Body Grabber
-		.btn-group.btn-group-lg
-			button.btn.btn-default.mute
-				span.glyphicon.glyphicon-volume-up
-			button.btn.btn-primary.start 
-				| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		.well
+			p.text-center
+				| Be quick to gather up the remains of road casualties before the officials can and cash their organs in at the black market butcher!
+			table.table.table-condensed
+				colgroup
+					col.col-xs-3
+					col.col-xs-9
+				tr
+					td.text-right
+						.key ▲
+						| &nbsp;
+						.key ▼
+					td.
+						Gas and Brake
+				tr
+					td.text-right
+						.key ◀
+						| &nbsp;
+						.key ▶
+					td.
+						Steering Wheel
+				tr
+					td.text-right
+						.key SPACE
+					td.
+						Body Grabber
+				tr
+					td.text-right
+						input#music(type='checkbox', checked)
+					td
+						label(for="music").
+							Music
+
+			.text-center
+				button.btn.btn-primary.btn-block.start 
+					| Start
