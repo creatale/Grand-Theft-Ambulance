@@ -6,7 +6,7 @@ module.exports = class HomeView extends Backbone.View
 	idName: 'home'
 	events:
 		'click .start': 'start'
-		'click #music': 'toggleMusic'
+		'switchChange.bootstrapSwitch #music': 'changeMusic'
 
 	render: =>
 		@$el.attr('id', @idName).html(@template())
@@ -23,9 +23,10 @@ module.exports = class HomeView extends Backbone.View
 			autoplay: true
 			loop: true
 			volume: 0.125
+		@$('#music').bootstrapSwitch()
 		
-	toggleMusic: =>
-		if @$('#music').is ':checked'
+	changeMusic: (event, state) =>
+		if state
 			@bg0.play()
 		else
 			@bg0.pause()

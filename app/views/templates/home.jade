@@ -1,7 +1,7 @@
 .row
 	.col-md-6.hidden-xs.hidden-sm
 		img.img-responsive(src='ui/splashscreen_solo.png')
-	.col-md-6.col-xs-8.col-xs-offset-2
+	.col-md-6.col-md-offset-0.col-xs-10.col-xs-offset-1
 		h1.text-center Welcome to Liverty City, stranger!
 		p.lead.text-center
 			| Here is where the fun dies on the streets.
@@ -10,8 +10,8 @@
 				| Be quick to gather up the remains of road casualties before the officials can and cash their organs in at the black market butcher!
 			table.table.table-condensed
 				colgroup
-					col.col-xs-3
-					col.col-xs-9
+					col.col-xs-4
+					col.col-xs-8
 				tr
 					td.text-right
 						.key ▲
@@ -34,9 +34,8 @@
 				tr
 					td.text-right
 						input#music(type='checkbox', checked)
-					td
-						label(for="music").
-							Music
+					td.
+						Music
 
 			.text-center
 				button.btn.btn-primary.btn-block.start 
